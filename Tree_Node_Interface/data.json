@@ -1,0 +1,60 @@
+[
+  {
+    "name": "root",
+    "type": "directory",
+    "collapsed": false,
+    "children": [
+      {
+        "name": "folder1",
+        "type": "directory",
+        "collapsed": false,
+        "children": [
+          {
+            "name": "folder2",
+            "type": "directory",
+            "collapsed": false,
+            "children": [
+              {
+                "name": "folder 3",
+                "type": "directory",
+                "collapsed": false,
+                "children": [
+                  {
+                    "name": "file3",
+                    "type": "file",
+                    "collapsed": false
+                  },
+                  {
+                    "name": "file4",
+                    "type": "file",
+                    "collapsed": false
+                  }
+                ]
+              },
+              {
+                "name": "file2",
+                "type": "file",
+                "collapsed": false
+              },
+              {
+                "name": "folder4",
+                "type": "directory",
+                "collapsed": false
+              }
+            ]
+          },
+          {
+            "name": "file1",
+            "type": "file",
+            "collapsed": false,
+            "details": {
+              "field1": "Arush",
+              "field2": "Nandankar",
+              "field3": "2022101116"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
