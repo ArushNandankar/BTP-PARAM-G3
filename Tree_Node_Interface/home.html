@@ -163,7 +163,7 @@
       <ul id="root">
         <li>
           <div class="tree-item">
-            <span class="expand-btn">[+]</span>
+            <span class="expand-btn">[-]</span>
             <span class="name">root</span>
             <div class="actions">
               <button class="add-btn" onclick="showAddForm(this)">+</button>
@@ -204,7 +204,7 @@
           btn.addEventListener("click", function () {
             const li = this.closest("li");
             const isCollapsed = li.classList.contains("collapsed");
-            this.textContent = isCollapsed ? "[+]" : "[-]";
+            this.textContent = isCollapsed ? "[-]" : "[+]";
             li.classList.toggle("collapsed");
           });
         });
