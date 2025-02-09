@@ -1,231 +1,243 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <style>
-    * {
-      font-family: "Courier New", Courier, monospace;
-    }
-    .tree {
-      padding: 20px;
-    }
-
-    .tree ul {
-      position: relative;
-      padding: 1em 0 0 1em;
-      list-style: none;
-      margin: 0;
-    }
-
-    .tree li {
-      position: relative;
-      padding: 0 0 1em 1em;
-    }
-
-    .tree li::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -1px;
-      bottom: 0;
-      width: 2px;
-      background: #888;
-    }
-
-    .tree li::after {
-      content: "";
-      position: absolute;
-      top: 1em;
-      left: 0;
-      width: 1em;
-      height: 2px;
-      background: #888;
-    }
-
-    /* Fix for last item line connection */
-    .tree li:last-child::before {
-      height: 1em;
-      bottom: auto;
-    }
-
-    .tree-item {
-      position: relative;
-      padding: 3px 5px;
-      display: inline-block;
-    }
-
-    .actions {
-      display: inline-block;
-      margin-left: 10px;
-    }
-
-    .add-btn, .delete-btn {
-      padding: 2px 6px;
-      margin: 0 2px;
-      cursor: pointer;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      background: #fff;
-    }
-
-    .add-btn:hover, .delete-btn:hover {
-      background: #f0f0f0;
-    }
-
-    .delete-btn {
-      color: #d33;
-    }
-
-    .input-form {
-      display: none;
-      margin: 5px 0;
-      padding: 5px;
-    }
-
-    .input-form.active {
-      display: block;
-    }
-
-    .input-form input {
-      padding: 4px;
-      margin-right: 5px;
-    }
-
-    .expand-btn {
-      cursor: pointer;
-      user-select: none;
-      margin-right: 5px;
-    }
-
-    .collapsed > ul {
-      display: none;
-    }
-
-    .file-item .add-btn {
-      display: none;
-    }
-
-    .file-item .expand-btn {
-      visibility: hidden;
-    }
-
-    .tree-controls {
-      margin-bottom: 20px;
-    }
-
-    .tree-controls button {
-      padding: 8px 16px;
-      margin-right: 10px;
-      cursor: pointer;
-      background: #f0f0f0;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-
-    .tree-controls button:hover {
-      background: #e0e0e0;
-    }
-
-    /* Underline file name on hover */
-    .file-item .name:hover {
-      text-decoration: underline;
-    }
-
-    /* Simple styling for the details box */
-    #details-box {
-      display: none;
-      position: absolute;
-      right: 50px;
-      top: 100px;
-      width: 200px;
-      border: 1px solid #ccc;
-      background: #fff;
-      padding: 10px;
-    }
-
-  </style>
-</head>
-<body>
-  <div class="tree-controls">
-    <br>
-    <button onclick="saveTree()">Save Tree</button>
-    <input type="file" id="loadFile" style="display: none" onchange="loadTree(event)">
-    <button onclick="document.getElementById('loadFile').click()">Load Tree</button>
-  </div>
-  <div class="tree">
-    <ul id="root">
-      <li>
-        <div class="tree-item">
-          <span class="expand-btn">[+]</span>
-          <span class="name">root</span>
-          <div class="actions">
-            <button class="add-btn" onclick="showAddForm(this)">+</button>
-          </div>
-          <div class="input-form">
-            <input type="text" placeholder="Name">
-            <select>
-              <option value="file">File</option>
-              <option value="directory">Directory</option>
-            </select>
-            <button onclick="addItem(this)">Add</button>
-          </div>
-        </div>
-        <ul>
-        </ul>
-      </li>
-    </ul>
-  </div>
-
-  <!-- Details box on the right -->
-  <div id="details-box">
-    <h3>File Details <span style="float:right; cursor:pointer;" onclick="closeDetailsBox()">[x]</span></h3>
-    <label>Field 1: <input type="text" id="field1"></label><br><br>
-    <label>Field 2: <input type="text" id="field2"></label><br><br>
-    <label>Field 3: <input type="text" id="field3"></label><br><br>
-    <br>
-    <button onclick="saveDetails()">Save</button>
-  </div>
-
-  <script>
-    // Initialize expand/collapse buttons
-    function initializeExpandButtons() {
-      document.querySelectorAll('.expand-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const li = this.closest('li');
-          const isCollapsed = li.classList.contains('collapsed');
-          this.textContent = isCollapsed ? '[+]' : '[-]';
-          li.classList.toggle('collapsed');
-        });
-      });
-    }
-
-    initializeExpandButtons();
-
-    function showAddForm(button) {
-      const form = button.parentElement.nextElementSibling;
-      form.classList.toggle('active');
-    }
-
-    function addItem(button) {
-      const form = button.parentElement;
-      const input = form.querySelector('input');
-      const select = form.querySelector('select');
-      const name = input.value.trim();
-      const type = select.value;
-
-      if (!name) return;
-
-      const parentLi = form.parentElement.parentElement;
-      let parentUl = parentLi.querySelector('ul');
-      
-      if (!parentUl) {
-        parentUl = document.createElement('ul');
-        parentLi.appendChild(parentUl);
+  <head>
+    <style>
+      * {
+        font-family: "Courier New", Courier, monospace;
+      }
+      .tree {
+        padding: 20px;
       }
 
-      const isDirectory = type === 'directory';
-      const newLi = document.createElement('li');
-      newLi.innerHTML = `
-        <div class="tree-item ${isDirectory ? 'dir-item' : 'file-item'}">
+      .tree ul {
+        position: relative;
+        padding: 1em 0 0 1em;
+        list-style: none;
+        margin: 0;
+      }
+
+      .tree li {
+        position: relative;
+        padding: 0 0 1em 1em;
+      }
+
+      .tree li::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -1px;
+        bottom: 0;
+        width: 2px;
+        background: #888;
+      }
+
+      .tree li::after {
+        content: "";
+        position: absolute;
+        top: 1em;
+        left: 0;
+        width: 1em;
+        height: 2px;
+        background: #888;
+      }
+
+      /* Fix for last item line connection */
+      .tree li:last-child::before {
+        height: 1em;
+        bottom: auto;
+      }
+
+      .tree-item {
+        position: relative;
+        padding: 3px 5px;
+        display: inline-block;
+      }
+
+      .actions {
+        display: inline-block;
+        margin-left: 10px;
+      }
+
+      .add-btn,
+      .delete-btn {
+        padding: 2px 6px;
+        margin: 0 2px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        background: #fff;
+      }
+
+      .add-btn:hover,
+      .delete-btn:hover {
+        background: #f0f0f0;
+      }
+
+      .delete-btn {
+        color: #d33;
+      }
+
+      .input-form {
+        display: none;
+        margin: 5px 0;
+        padding: 5px;
+      }
+
+      .input-form.active {
+        display: block;
+      }
+
+      .input-form input {
+        padding: 4px;
+        margin-right: 5px;
+      }
+
+      .expand-btn {
+        cursor: pointer;
+        user-select: none;
+        margin-right: 5px;
+      }
+
+      .collapsed > ul {
+        display: none;
+      }
+
+      .file-item .add-btn {
+        display: none;
+      }
+
+      .file-item .expand-btn {
+        visibility: hidden;
+      }
+
+      .tree-controls {
+        margin-bottom: 20px;
+      }
+
+      .tree-controls button {
+        padding: 8px 16px;
+        margin-right: 10px;
+        cursor: pointer;
+        background: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      .tree-controls button:hover {
+        background: #e0e0e0;
+      }
+
+      /* Underline file name on hover */
+      .file-item .name:hover {
+        text-decoration: underline;
+      }
+
+      /* Simple styling for the details box */
+      #details-box {
+        display: none;
+        position: absolute;
+        right: 50px;
+        top: 100px;
+        width: 200px;
+        border: 1px solid #ccc;
+        background: #fff;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="tree-controls">
+      <br />
+      <button onclick="saveTree()">Save Tree</button>
+      <input
+        type="file"
+        id="loadFile"
+        style="display: none"
+        onchange="loadTree(event)"
+      />
+      <button onclick="document.getElementById('loadFile').click()">
+        Load Tree
+      </button>
+    </div>
+    <div class="tree">
+      <ul id="root">
+        <li>
+          <div class="tree-item">
+            <span class="expand-btn">[+]</span>
+            <span class="name">root</span>
+            <div class="actions">
+              <button class="add-btn" onclick="showAddForm(this)">+</button>
+            </div>
+            <div class="input-form">
+              <input type="text" placeholder="Name" />
+              <select>
+                <option value="file">File</option>
+                <option value="directory">Directory</option>
+              </select>
+              <button onclick="addItem(this)">Add</button>
+            </div>
+          </div>
+          <ul></ul>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Details box on the right -->
+    <div id="details-box">
+      <h3>
+        File Details
+        <span style="float: right; cursor: pointer" onclick="closeDetailsBox()"
+          >[x]</span
+        >
+      </h3>
+      <label>Field 1: <input type="text" id="field1" /></label><br /><br />
+      <label>Field 2: <input type="text" id="field2" /></label><br /><br />
+      <label>Field 3: <input type="text" id="field3" /></label><br /><br />
+      <br />
+      <button onclick="saveDetails()">Save</button>
+    </div>
+
+    <script>
+      // Initialize expand/collapse buttons
+      function initializeExpandButtons() {
+        document.querySelectorAll(".expand-btn").forEach((btn) => {
+          btn.addEventListener("click", function () {
+            const li = this.closest("li");
+            const isCollapsed = li.classList.contains("collapsed");
+            this.textContent = isCollapsed ? "[+]" : "[-]";
+            li.classList.toggle("collapsed");
+          });
+        });
+      }
+
+      initializeExpandButtons();
+
+      function showAddForm(button) {
+        const form = button.parentElement.nextElementSibling;
+        form.classList.toggle("active");
+      }
+
+      function addItem(button) {
+        const form = button.parentElement;
+        const input = form.querySelector("input");
+        const select = form.querySelector("select");
+        const name = input.value.trim();
+        const type = select.value;
+
+        if (!name) return;
+
+        const parentLi = form.parentElement.parentElement;
+        let parentUl = parentLi.querySelector("ul");
+
+        if (!parentUl) {
+          parentUl = document.createElement("ul");
+          parentLi.appendChild(parentUl);
+        }
+
+        const isDirectory = type === "directory";
+        const newLi = document.createElement("li");
+        newLi.innerHTML = `
+        <div class="tree-item ${isDirectory ? "dir-item" : "file-item"}">
           <span class="expand-btn">[+]</span>
           <span class="name">${name}</span>
           <div class="actions">
@@ -241,149 +253,165 @@
             <button onclick="addItem(this)">Add</button>
           </div>
         </div>
-        ${isDirectory ? '<ul></ul>' : ''}
+        ${isDirectory ? "<ul></ul>" : ""}
       `;
 
-      const expandBtn = newLi.querySelector('.expand-btn');
-      expandBtn.addEventListener('click', function() {
-        const li = this.closest('li');
-        const isCollapsed = li.classList.contains('collapsed');
-        this.textContent = isCollapsed ? '[+]' : '[-]';
-        li.classList.toggle('collapsed');
+        const expandBtn = newLi.querySelector(".expand-btn");
+        expandBtn.addEventListener("click", function () {
+          const li = this.closest("li");
+          const isCollapsed = li.classList.contains("collapsed");
+          this.textContent = isCollapsed ? "[+]" : "[-]";
+          li.classList.toggle("collapsed");
+        });
+
+        parentUl.appendChild(newLi);
+        input.value = "";
+        form.classList.remove("active");
+      }
+
+      function deleteItem(button) {
+        const li = button.closest("li");
+        if (
+          confirm(
+            "Are you sure you want to delete this item and all its contents?"
+          )
+        ) {
+          li.remove();
+        }
+      }
+
+      // Track which LI is currently selected
+      let currentFileLi = null;
+
+      // Show details box when clicking a file name
+      document.addEventListener("click", function (e) {
+        if (e.target.matches(".file-item .name")) {
+          // Show details box if it's a file
+          const li = e.target.closest("li");
+          if (li.querySelector(".file-item").classList.contains("file-item")) {
+            currentFileLi = li;
+            const details = li.dataset.details
+              ? JSON.parse(li.dataset.details)
+              : { field1: "", field2: "", field3: "" };
+            document.getElementById("field1").value = details.field1 || "";
+            document.getElementById("field2").value = details.field2 || "";
+            document.getElementById("field3").value = details.field3 || "";
+            document.getElementById("details-box").style.display = "block";
+          }
+        }
       });
 
-      parentUl.appendChild(newLi);
-      input.value = '';
-      form.classList.remove('active');
-    }
-
-    function deleteItem(button) {
-      const li = button.closest('li');
-      if (confirm('Are you sure you want to delete this item and all its contents?')) {
-        li.remove();
+      // Close the details box
+      function closeDetailsBox() {
+        document.getElementById("details-box").style.display = "none";
       }
-    }
 
-    // Track which LI is currently selected
-    let currentFileLi = null;
-
-    // Show details box when clicking a file name
-    document.addEventListener('click', function(e) {
-      if (e.target.matches('.file-item .name')) {
-        // Show details box if it's a file
-        const li = e.target.closest('li');
-        if (li.querySelector('.file-item').classList.contains('file-item')) {
-          currentFileLi = li;
-          const details = li.dataset.details ? JSON.parse(li.dataset.details) : {field1:'',field2:'',field3:''};
-          document.getElementById('field1').value = details.field1 || '';
-          document.getElementById('field2').value = details.field2 || '';
-          document.getElementById('field3').value = details.field3 || '';
-          document.getElementById('details-box').style.display = 'block';
-        }
+      // Save the details into the LI dataset and close the box
+      function saveDetails() {
+        if (!currentFileLi) return;
+        const details = {
+          field1: document.getElementById("field1").value,
+          field2: document.getElementById("field2").value,
+          field3: document.getElementById("field3").value,
+        };
+        currentFileLi.dataset.details = JSON.stringify(details);
+        alert("Details saved.");
+        closeDetailsBox();
       }
-    });
 
-// Close the details box
-function closeDetailsBox() {
-  document.getElementById('details-box').style.display = 'none';
-}
+      // Convert tree to JSON
+      function treeToJson(element) {
+        const items = [];
+        const lis = element.children;
 
-// Save the details into the LI dataset and close the box
-function saveDetails() {
-  if (!currentFileLi) return;
-  const details = {
-    field1: document.getElementById('field1').value,
-    field2: document.getElementById('field2').value,
-    field3: document.getElementById('field3').value
-  };
-  currentFileLi.dataset.details = JSON.stringify(details);
-  alert('Details saved.');
-  closeDetailsBox();
-}
+        for (let li of lis) {
+          const item = {};
+          const nameSpan = li.querySelector(".name");
+          item.name = nameSpan.textContent;
+          item.type = li
+            .querySelector(".tree-item")
+            .classList.contains("file-item")
+            ? "file"
+            : "directory";
+          item.collapsed = li.classList.contains("collapsed");
+          // Include stored details
+          if (li.dataset.details) {
+            item.details = JSON.parse(li.dataset.details);
+          }
 
-    // Convert tree to JSON
-    function treeToJson(element) {
-      const items = [];
-      const lis = element.children;
-      
-      for (let li of lis) {
-        const item = {};
-        const nameSpan = li.querySelector('.name');
-        item.name = nameSpan.textContent;
-        item.type = li.querySelector('.tree-item').classList.contains('file-item') ? 'file' : 'directory';
-        item.collapsed = li.classList.contains('collapsed');
-        // Include stored details
-        if (li.dataset.details) {
-          item.details = JSON.parse(li.dataset.details);
+          const ul = li.querySelector("ul");
+          if (ul && ul.children.length > 0) {
+            item.children = treeToJson(ul);
+          }
+
+          items.push(item);
         }
-        
-        const ul = li.querySelector('ul');
-        if (ul && ul.children.length > 0) {
-          item.children = treeToJson(ul);
-        }
-        
-        items.push(item);
+
+        return items;
       }
-      
-      return items;
-    }
 
-    // Save tree to JSON file
-    async function saveTree() {
-  const root = document.getElementById('root');
-  const treeData = treeToJson(root);
-  const jsonString = JSON.stringify(treeData, null, 2);
+      // Save tree to JSON file
+      async function saveTree() {
+        const root = document.getElementById("root");
+        const treeData = treeToJson(root);
+        const jsonString = JSON.stringify(treeData, null, 2);
 
-  if (window.showSaveFilePicker) {
-    try {
-      const handle = await window.showSaveFilePicker({
-        suggestedName: "tree-structure.json",
-        types: [{
-          description: "JSON Files",
-          accept: { "application/json": [".json"] }
-        }]
-      });
-      const writable = await handle.createWritable();
-      await writable.write(jsonString);
-      await writable.close();
-      alert("File saved successfully!");
-    } catch (error) {
-      console.error("File save failed", error);
-    }
-  } else {
-    // Fallback for unsupported browsers
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'tree-structure.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-}
-
-    // Load tree from JSON file
-    function loadTree(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
+        if (window.showSaveFilePicker) {
           try {
-            const treeData = JSON.parse(e.target.result);
-            const root = document.getElementById('root');
-            root.innerHTML = '';
-            
-            function createTreeElement(items) {
-              const fragment = document.createDocumentFragment();
-              
-              items.forEach(item => {
-                const li = document.createElement('li');
-                if (item.collapsed) li.classList.add('collapsed');
-                
-                const isDirectory = item.type === 'directory';
-                li.innerHTML = `
-                  <div class="tree-item ${isDirectory ? 'dir-item' : 'file-item'}">
-                    <span class="expand-btn">[${item.collapsed ? '+' : '-'}]</span>
+            const handle = await window.showSaveFilePicker({
+              suggestedName: "tree-structure.json",
+              types: [
+                {
+                  description: "JSON Files",
+                  accept: { "application/json": [".json"] },
+                },
+              ],
+            });
+            const writable = await handle.createWritable();
+            await writable.write(jsonString);
+            await writable.close();
+            alert("File saved successfully!");
+          } catch (error) {
+            console.error("File save failed", error);
+          }
+        } else {
+          // Fallback for unsupported browsers
+          const blob = new Blob([jsonString], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "tree-structure.json";
+          a.click();
+          URL.revokeObjectURL(url);
+        }
+      }
+
+      // Load tree from JSON file
+      function loadTree(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              const treeData = JSON.parse(e.target.result);
+              const root = document.getElementById("root");
+              root.innerHTML = "";
+
+              function createTreeElement(items) {
+                const fragment = document.createDocumentFragment();
+
+                items.forEach((item) => {
+                  const li = document.createElement("li");
+                  if (item.collapsed) li.classList.add("collapsed");
+
+                  const isDirectory = item.type === "directory";
+                  li.innerHTML = `
+                  <div class="tree-item ${
+                    isDirectory ? "dir-item" : "file-item"
+                  }">
+                    <span class="expand-btn">[${
+                      item.collapsed ? "+" : "-"
+                    }]</span>
                     <span class="name">${item.name}</span>
                     <div class="actions">
                       <button class="add-btn" onclick="showAddForm(this)">+</button>
@@ -399,40 +427,40 @@ function saveDetails() {
                     </div>
                   </div>
                 `;
-                // Restore details if present
-                if (item.details) {
-                  li.dataset.details = JSON.stringify(item.details);
-                }
-                
-                if (item.children) {
-                  const ul = document.createElement('ul');
-                  ul.appendChild(createTreeElement(item.children));
-                  li.appendChild(ul);
-                }
-                
-                fragment.appendChild(li);
-              });
-              
-              return fragment;
-            }
-            
-            root.appendChild(createTreeElement(treeData));
-            initializeExpandButtons();
-          } catch (error) {
-            alert('Error loading file: ' + error.message);
-          }
-        };
-        reader.readAsText(file);
-      }
-    }
+                  // Restore details if present
+                  if (item.details) {
+                    li.dataset.details = JSON.stringify(item.details);
+                  }
 
-    // Initialize all items
-    document.querySelectorAll('.tree-item').forEach(item => {
-      const isDirectory = item.closest('li').querySelector('ul') !== null;
-      if (!isDirectory) {
-        item.classList.add('file-item');
+                  if (item.children) {
+                    const ul = document.createElement("ul");
+                    ul.appendChild(createTreeElement(item.children));
+                    li.appendChild(ul);
+                  }
+
+                  fragment.appendChild(li);
+                });
+
+                return fragment;
+              }
+
+              root.appendChild(createTreeElement(treeData));
+              initializeExpandButtons();
+            } catch (error) {
+              alert("Error loading file: " + error.message);
+            }
+          };
+          reader.readAsText(file);
+        }
       }
-    });
-  </script>
-</body>
+
+      // Initialize all items
+      document.querySelectorAll(".tree-item").forEach((item) => {
+        const isDirectory = item.closest("li").querySelector("ul") !== null;
+        if (!isDirectory) {
+          item.classList.add("file-item");
+        }
+      });
+    </script>
+  </body>
 </html>
