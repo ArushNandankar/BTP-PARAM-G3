@@ -41,7 +41,6 @@
         background: #888;
       }
 
-      /* Fix for last item line connection */
       .tree li:last-child::before {
         height: 1em;
         bottom: auto;
@@ -127,21 +126,54 @@
         background: #e0e0e0;
       }
 
-      /* Underline file name on hover */
       .file-item .name:hover {
         text-decoration: underline;
       }
 
-      /* Simple styling for the details box */
+      /* Original details box style */
       #details-box {
         display: none;
         position: absolute;
-        right: 50px;
+        right: 10%;
         top: 100px;
         width: 200px;
         border: 1px solid #ccc;
         background: #fff;
         padding: 10px;
+        z-index: 2000; /* Added */
+      }
+
+      /* Add new folder contents box style */
+      #folder-contents-box {
+        display: none;
+        position: absolute;
+        right: 40%;
+        top: 300px;
+        width: 300px;
+        border: 1px solid #ccc;
+        background: #fff;
+        padding: 10px;
+        z-index: 1000; /* Added */
+      }
+
+      .file-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .file-list li {
+        padding: 5px;
+        cursor: pointer;
+      }
+
+      .file-list li:hover {
+        background: #f0f0f0;
+      }
+
+      .file-path {
+        color: #666;
+        font-size: 0.9em;
       }
     </style>
   </head>
@@ -162,7 +194,7 @@
     <div class="tree">
       <ul id="root">
         <li>
-          <div class="tree-item">
+          <div class="tree-item dir-item">
             <span class="expand-btn">[-]</span>
             <span class="name">root</span>
             <div class="actions">
@@ -182,13 +214,11 @@
       </ul>
     </div>
 
-    <!-- Details box on the right -->
+    <!-- Original details box -->
     <div id="details-box">
       <h3>
         File Details
-        <span style="float: right; cursor: pointer" onclick="closeDetailsBox()"
-          >[x]</span
-        >
+        <span style="float: right; cursor: pointer" onclick="closeDetailsBox()">[x]</span>
       </h3>
       <label>Field 1: <input type="text" id="field1" /></label><br /><br />
       <label>Field 2: <input type="text" id="field2" /></label><br /><br />
@@ -197,8 +227,18 @@
       <button onclick="saveDetails()">Save</button>
     </div>
 
+    <!-- New folder contents box -->
+    <div id="folder-contents-box">
+      <h3>
+        Folder Contents
+        <span style="float: right; cursor: pointer" onclick="closeFolderContentsBox()">[x]</span>
+      </h3>
+      <div id="folder-path"></div>
+      <ul class="file-list" id="folder-files"></ul>
+    </div>
+
     <script>
-      // Initialize expand/collapse buttons
+      // Keep all original functions
       function initializeExpandButtons() {
         document.querySelectorAll(".expand-btn").forEach((btn) => {
           btn.addEventListener("click", function () {
@@ -237,24 +277,24 @@
         const isDirectory = type === "directory";
         const newLi = document.createElement("li");
         newLi.innerHTML = `
-        <div class="tree-item ${isDirectory ? "dir-item" : "file-item"}">
-          <span class="expand-btn">[+]</span>
-          <span class="name">${name}</span>
-          <div class="actions">
-            <button class="add-btn" onclick="showAddForm(this)">+</button>
-            <button class="delete-btn" onclick="deleteItem(this)">×</button>
+          <div class="tree-item ${isDirectory ? "dir-item" : "file-item"}">
+            <span class="expand-btn">[+]</span>
+            <span class="name">${name}</span>
+            <div class="actions">
+              <button class="add-btn" onclick="showAddForm(this)">+</button>
+              <button class="delete-btn" onclick="deleteItem(this)">×</button>
+            </div>
+            <div class="input-form">
+              <input type="text" placeholder="Name">
+              <select>
+                <option value="file">File</option>
+                <option value="directory">Directory</option>
+              </select>
+              <button onclick="addItem(this)">Add</button>
+            </div>
           </div>
-          <div class="input-form">
-            <input type="text" placeholder="Name">
-            <select>
-              <option value="file">File</option>
-              <option value="directory">Directory</option>
-            </select>
-            <button onclick="addItem(this)">Add</button>
-          </div>
-        </div>
-        ${isDirectory ? "<ul></ul>" : ""}
-      `;
+          ${isDirectory ? "<ul></ul>" : ""}
+        `;
 
         const expandBtn = newLi.querySelector(".expand-btn");
         expandBtn.addEventListener("click", function () {
@@ -271,42 +311,101 @@
 
       function deleteItem(button) {
         const li = button.closest("li");
-        if (
-          confirm(
-            "Are you sure you want to delete this item and all its contents?"
-          )
-        ) {
+        if (confirm("Are you sure you want to delete this item and all its contents?")) {
           li.remove();
         }
       }
 
-      // Track which LI is currently selected
       let currentFileLi = null;
 
       // Show details box when clicking a file name
       document.addEventListener("click", function (e) {
         if (e.target.matches(".file-item .name")) {
-          // Show details box if it's a file
+          currentFileLi = e.target.closest("li");
+          const details = currentFileLi.dataset.details
+            ? JSON.parse(currentFileLi.dataset.details)
+            : { field1: "", field2: "", field3: "" };
+          document.getElementById("field1").value = details.field1 || "";
+          document.getElementById("field2").value = details.field2 || "";
+          document.getElementById("field3").value = details.field3 || "";
+          document.getElementById("details-box").style.display = "block";
+        } else if (e.target.matches(".dir-item .name")) {
+          // Show folder contents when clicking a directory name
           const li = e.target.closest("li");
-          if (li.querySelector(".file-item").classList.contains("file-item")) {
-            currentFileLi = li;
-            const details = li.dataset.details
-              ? JSON.parse(li.dataset.details)
-              : { field1: "", field2: "", field3: "" };
-            document.getElementById("field1").value = details.field1 || "";
-            document.getElementById("field2").value = details.field2 || "";
-            document.getElementById("field3").value = details.field3 || "";
-            document.getElementById("details-box").style.display = "block";
-          }
+          showFolderContents(li);
         }
       });
 
-      // Close the details box
+      // New function to get path to a node
+      function getPathToNode(element) {
+        const path = [];
+        let current = element;
+        while (current) {
+          const nameEl = current.querySelector('.name');
+          if (nameEl) {
+            path.unshift(nameEl.textContent);
+          }
+          current = current.parentElement.closest('li');
+        }
+        return path.join('/');
+      }
+
+      // New helper for relative paths
+      function getRelativePathToNode(baseLi, targetLi) {
+        const basePath = getPathToNode(baseLi).split('/');
+        const targetPath = getPathToNode(targetLi).split('/');
+        let i = 0;
+        while (i < basePath.length && i < targetPath.length && basePath[i] === targetPath[i]) {
+          i++;
+        }
+        return targetPath.slice(i).join('/');
+      }
+
+      // New function to show folder contents
+      function showFolderContents(directoryLi) {
+        const path = getPathToNode(directoryLi);
+        const filesList = document.getElementById('folder-files');
+        filesList.innerHTML = '';
+
+        // Grab only the '.file-item' elements under the clicked folder
+        const fileItems = directoryLi.querySelectorAll('.file-item');
+        fileItems.forEach(fileItem => {
+          const li = fileItem.closest('li');
+          const name = fileItem.querySelector('.name').textContent;
+          const relativePath = getRelativePathToNode(directoryLi, li);
+          const listItem = document.createElement('li');
+          listItem.innerHTML = `
+            <div>${name}</div>
+            <div class="file-path"><b>${relativePath}</b></div>
+          `;
+          listItem.onmouseover = () => {
+            currentFileLi = li;
+            const details = li.dataset.details
+              ? JSON.parse(li.dataset.details)
+              : { field1: '', field2: '', field3: '' };
+            document.getElementById('field1').value = details.field1 || '';
+            document.getElementById('field2').value = details.field2 || '';
+            document.getElementById('field3').value = details.field3 || '';
+            document.getElementById('details-box').style.display = 'block';
+          };
+          listItem.onmouseout = () => {
+            document.getElementById('details-box').style.display = 'none';
+          };
+          filesList.appendChild(listItem);
+        });
+
+        document.getElementById('folder-path').textContent = `Path: ${path}`;
+        document.getElementById('folder-contents-box').style.display = 'block';
+      }
+
       function closeDetailsBox() {
         document.getElementById("details-box").style.display = "none";
       }
 
-      // Save the details into the LI dataset and close the box
+      function closeFolderContentsBox() {
+        document.getElementById("folder-contents-box").style.display = "none";
+      }
+
       function saveDetails() {
         if (!currentFileLi) return;
         const details = {
@@ -319,7 +418,7 @@
         closeDetailsBox();
       }
 
-      // Convert tree to JSON
+      // Keep all original tree save/load functions
       function treeToJson(element) {
         const items = [];
         const lis = element.children;
@@ -328,13 +427,10 @@
           const item = {};
           const nameSpan = li.querySelector(".name");
           item.name = nameSpan.textContent;
-          item.type = li
-            .querySelector(".tree-item")
-            .classList.contains("file-item")
+          item.type = li.querySelector(".tree-item").classList.contains("file-item")
             ? "file"
             : "directory";
           item.collapsed = li.classList.contains("collapsed");
-          // Include stored details
           if (li.dataset.details) {
             item.details = JSON.parse(li.dataset.details);
           }

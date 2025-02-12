@@ -15,26 +15,41 @@
             "collapsed": false,
             "children": [
               {
-                "name": "folder 3",
+                "name": "folder3",
                 "type": "directory",
                 "collapsed": false,
                 "children": [
                   {
                     "name": "file3",
                     "type": "file",
-                    "collapsed": false
+                    "collapsed": false,
+                    "details": {
+                      "field1": "asfd",
+                      "field2": "dfsfd",
+                      "field3": "dfsfd"
+                    }
                   },
                   {
                     "name": "file4",
                     "type": "file",
-                    "collapsed": false
+                    "collapsed": false,
+                    "details": {
+                      "field1": "FF1",
+                      "field2": "FF2",
+                      "field3": "FF3"
+                    }
                   }
                 ]
               },
               {
                 "name": "file2",
                 "type": "file",
-                "collapsed": false
+                "collapsed": false,
+                "details": {
+                  "field1": "File2F1",
+                  "field2": "File2F2",
+                  "field3": "File2F3"
+                }
               },
               {
                 "name": "folder4",
