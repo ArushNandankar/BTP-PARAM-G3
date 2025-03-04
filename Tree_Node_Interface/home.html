@@ -101,11 +101,11 @@
         display: none;
       }
 
-      .file-item .add-btn {
+      .node-item .add-btn {
         display: none;
       }
 
-      .file-item .expand-btn {
+      .node-item .expand-btn {
         visibility: hidden;
       }
 
@@ -126,7 +126,7 @@
         background: #e0e0e0;
       }
 
-      .file-item .name:hover {
+      .node-item .name:hover {
         text-decoration: underline;
       }
 
@@ -136,7 +136,7 @@
         position: absolute;
         right: 10%;
         top: 100px;
-        width: 200px;
+        width: 20%;
         border: 1px solid #ccc;
         background: #fff;
         padding: 10px;
@@ -148,8 +148,8 @@
         display: none;
         position: absolute;
         right: 40%;
-        top: 300px;
-        width: 300px;
+        top: 100px;
+        width: 20%;
         border: 1px solid #ccc;
         background: #fff;
         padding: 10px;
@@ -175,6 +175,16 @@
         color: #666;
         font-size: 0.9em;
       }
+
+      /* Additional spacing in the root details box */
+      #folder-contents-box .file-list li {
+        margin-bottom: 15px;
+        line-height: 1.6;
+      }
+      #folder-contents-box .file-list li input {
+        display: block;
+        margin-bottom: 5px;
+      }
     </style>
   </head>
   <body>
@@ -194,7 +204,7 @@
     <div class="tree">
       <ul id="root">
         <li>
-          <div class="tree-item dir-item">
+          <div class="tree-item root-item">
             <span class="expand-btn">[-]</span>
             <span class="name">root</span>
             <div class="actions">
@@ -203,8 +213,8 @@
             <div class="input-form">
               <input type="text" placeholder="Name" />
               <select>
-                <option value="file">File</option>
-                <option value="directory">Directory</option>
+                <option value="node">Node</option>
+                <option value="root">Root</option>
               </select>
               <button onclick="addItem(this)">Add</button>
             </div>
@@ -217,24 +227,58 @@
     <!-- Original details box -->
     <div id="details-box">
       <h3>
-        File Details
+        Node Details
         <span style="float: right; cursor: pointer" onclick="closeDetailsBox()">[x]</span>
       </h3>
-      <label>Field 1: <input type="text" id="field1" /></label><br /><br />
-      <label>Field 2: <input type="text" id="field2" /></label><br /><br />
-      <label>Field 3: <input type="text" id="field3" /></label><br /><br />
-      <br />
+      <!-- Just keep 'Example' since 'Language' is no longer needed -->
+      <label>Example:
+        <select id="field2Lang">
+          <option value="english" selected>English</option>
+          <option value="gujrati">Gujarati</option>
+          <option value="kannada">Kannada</option>
+          <option value="telugu">Telugu</option>
+          <option value="tamil">Tamil</option>
+          <option value="hindi">Hindi</option>
+          <option value="odia">Odia</option>
+          <option value="sindhi">Sindhi</option>
+          <option value="kashmiri">Kashmiri</option>
+          <option value="malayalam">Punjabi</option>
+          <option value="punjabi">Urdu</option>
+        </select>
+        <br />
+        <br />
+        <textarea
+          id="field2"
+          rows="1"
+          style="overflow:hidden; width: 100%; resize: vertical; height: 70px;"
+          oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px';"
+        ></textarea>
+      </label>
+      <br /><br />
       <button onclick="saveDetails()">Save</button>
     </div>
 
     <!-- New folder contents box -->
     <div id="folder-contents-box">
       <h3>
-        Folder Contents
+        Type Details
         <span style="float: right; cursor: pointer" onclick="closeFolderContentsBox()">[x]</span>
       </h3>
-      <div id="folder-path"></div>
+      <label>Type Name: <span id="folder-name-display"></span></label>
+      <br /><br />
+      <!-- Change the 'Type Description' input -->
+      <label>Type Description:
+        <textarea
+          id="folder-field1"
+          rows="1"
+          style="overflow:hidden; width: 100%; resize: vertical; height: 70px;"
+          oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px';"
+        ></textarea>
+      </label>
+      <br /><br />
+      <h4>Nodes in this Root:</h4>
       <ul class="file-list" id="folder-files"></ul>
+      <button onclick="saveFolderDetails()">Save Root Details</button>
     </div>
 
     <script>
@@ -274,10 +318,10 @@
           parentLi.appendChild(parentUl);
         }
 
-        const isDirectory = type === "directory";
+        const isRoot = type === "root";
         const newLi = document.createElement("li");
         newLi.innerHTML = `
-          <div class="tree-item ${isDirectory ? "dir-item" : "file-item"}">
+          <div class="tree-item ${isRoot ? "root-item" : "node-item"}">
             <span class="expand-btn">[+]</span>
             <span class="name">${name}</span>
             <div class="actions">
@@ -287,13 +331,13 @@
             <div class="input-form">
               <input type="text" placeholder="Name">
               <select>
-                <option value="file">File</option>
-                <option value="directory">Directory</option>
+                <option value="node">Node</option>
+                <option value="root">Root</option>
               </select>
               <button onclick="addItem(this)">Add</button>
             </div>
           </div>
-          ${isDirectory ? "<ul></ul>" : ""}
+          ${isRoot ? "<ul></ul>" : ""}
         `;
 
         const expandBtn = newLi.querySelector(".expand-btn");
@@ -320,16 +364,20 @@
 
       // Show details box when clicking a file name
       document.addEventListener("click", function (e) {
-        if (e.target.matches(".file-item .name")) {
+        if (e.target.matches(".node-item .name")) {
           currentFileLi = e.target.closest("li");
           const details = currentFileLi.dataset.details
             ? JSON.parse(currentFileLi.dataset.details)
-            : { field1: "", field2: "", field3: "" };
-          document.getElementById("field1").value = details.field1 || "";
+            : { field2: "", field2Lang: "english" };
+          
+          const field2Textarea = document.getElementById("field2");
+          field2Textarea.style.height = "70px";
+          field2Textarea.style.resize = "vertical";
+
           document.getElementById("field2").value = details.field2 || "";
-          document.getElementById("field3").value = details.field3 || "";
+          document.getElementById("field2Lang").value = details.field2Lang || "english";
           document.getElementById("details-box").style.display = "block";
-        } else if (e.target.matches(".dir-item .name")) {
+        } else if (e.target.matches(".root-item .name")) {
           // Show folder contents when clicking a directory name
           const li = e.target.closest("li");
           showFolderContents(li);
@@ -361,40 +409,67 @@
         return targetPath.slice(i).join('/');
       }
 
+      let currentFolderLi = null;
+
       // New function to show folder contents
       function showFolderContents(directoryLi) {
-        const path = getPathToNode(directoryLi);
+        currentFolderLi = directoryLi;
+        document.getElementById('folder-name-display').textContent =
+          directoryLi.querySelector('.name').textContent;
+
+        const folderDetails = directoryLi.dataset.details
+          ? JSON.parse(directoryLi.dataset.details)
+          : { field1: '', field2: '', field3: '' };
+        document.getElementById('folder-field1').value = folderDetails.field1 || '';
+
+        // Populate file data
         const filesList = document.getElementById('folder-files');
         filesList.innerHTML = '';
-
-        // Grab only the '.file-item' elements under the clicked folder
-        const fileItems = directoryLi.querySelectorAll('.file-item');
-        fileItems.forEach(fileItem => {
+        const fileItems = directoryLi.querySelectorAll('.node-item');
+        fileItems.forEach((fileItem) => {
           const li = fileItem.closest('li');
           const name = fileItem.querySelector('.name').textContent;
-          const relativePath = getRelativePathToNode(directoryLi, li);
+          const fileDetails = li.dataset.details
+        ? JSON.parse(li.dataset.details)
+        : { field1: '', field2: '', field3: '' };
+
           const listItem = document.createElement('li');
-          listItem.innerHTML = `
-            <div>${name}</div>
-            <div class="file-path"><b>${relativePath}</b></div>
-          `;
-          listItem.onmouseover = () => {
-            currentFileLi = li;
-            const details = li.dataset.details
-              ? JSON.parse(li.dataset.details)
-              : { field1: '', field2: '', field3: '' };
-            document.getElementById('field1').value = details.field1 || '';
-            document.getElementById('field2').value = details.field2 || '';
-            document.getElementById('field3').value = details.field3 || '';
-            document.getElementById('details-box').style.display = 'block';
+
+          // Make file name a non-editable span
+          const fileNameSpan = document.createElement('span');
+          fileNameSpan.textContent = name;
+
+          // Replace fileField1 with a textarea
+          const fileField1 = document.createElement('textarea');
+          fileField1.rows = 1;
+          fileField1.style.overflow = 'hidden';
+          fileField1.style.resize = 'vertical';
+          fileField1.oninput = function() {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
           };
-          listItem.onmouseout = () => {
-            document.getElementById('details-box').style.display = 'none';
-          };
+          fileField1.value = fileDetails.field1;
+
+            // Replace fileField2 with a textarea
+            const fileField2 = document.createElement('textarea');
+            // fileField2.rows = 1;
+            fileField2.style.overflow = 'hidden';
+            fileField2.style.resize = 'vertical';
+            fileField2.style.width = '100%';
+            fileField2.style.height = '70px';
+            fileField2.oninput = function() {
+            //this.style.height = 'auto';
+            //this.style.height = this.scrollHeight + 'px';
+            };
+            fileField2.value = fileDetails.field2;
+
+          listItem.appendChild(fileNameSpan);
+          listItem.appendChild(document.createElement('br'));
+          // listItem.appendChild(fileField1);
+          listItem.appendChild(fileField2);
           filesList.appendChild(listItem);
         });
 
-        document.getElementById('folder-path').textContent = `Path: ${path}`;
         document.getElementById('folder-contents-box').style.display = 'block';
       }
 
@@ -406,12 +481,37 @@
         document.getElementById("folder-contents-box").style.display = "none";
       }
 
+      function saveFolderDetails() {
+        if (!currentFolderLi) return;
+
+        const folderDetails = {
+          field1: document.getElementById('folder-field1').value,
+        };
+        currentFolderLi.dataset.details = JSON.stringify(folderDetails);
+
+        const filesListItems = document.getElementById('folder-files').querySelectorAll('li');
+        const fileItems = currentFolderLi.querySelectorAll('.node-item');
+
+        fileItems.forEach((item, index) => {
+          const textareas = filesListItems[index].querySelectorAll('textarea');
+          const newField1 = textareas[0].value;
+          const newField2 = textareas[1].value;
+
+          item.closest('li').dataset.details = JSON.stringify({
+            field1: newField1,
+            field2: newField2
+          });
+        });
+
+        alert("Folder details updated!");
+        closeFolderContentsBox();
+      }
+
       function saveDetails() {
         if (!currentFileLi) return;
         const details = {
-          field1: document.getElementById("field1").value,
           field2: document.getElementById("field2").value,
-          field3: document.getElementById("field3").value,
+          field2Lang: document.getElementById("field2Lang").value
         };
         currentFileLi.dataset.details = JSON.stringify(details);
         alert("Details saved.");
@@ -427,9 +527,9 @@
           const item = {};
           const nameSpan = li.querySelector(".name");
           item.name = nameSpan.textContent;
-          item.type = li.querySelector(".tree-item").classList.contains("file-item")
-            ? "file"
-            : "directory";
+          item.type = li.querySelector(".tree-item").classList.contains("node-item")
+            ? "node"
+            : "root";
           item.collapsed = li.classList.contains("collapsed");
           if (li.dataset.details) {
             item.details = JSON.parse(li.dataset.details);
@@ -500,10 +600,10 @@
                   const li = document.createElement("li");
                   if (item.collapsed) li.classList.add("collapsed");
 
-                  const isDirectory = item.type === "directory";
+                  const isRoot = item.type === "root";
                   li.innerHTML = `
                   <div class="tree-item ${
-                    isDirectory ? "dir-item" : "file-item"
+                    isRoot ? "root-item" : "node-item"
                   }">
                     <span class="expand-btn">[${
                       item.collapsed ? "+" : "-"
@@ -516,8 +616,8 @@
                     <div class="input-form">
                       <input type="text" placeholder="Name">
                       <select>
-                        <option value="file">File</option>
-                        <option value="directory">Directory</option>
+                        <option value="node">Node</option>
+                        <option value="root">Root</option>
                       </select>
                       <button onclick="addItem(this)">Add</button>
                     </div>
@@ -554,7 +654,7 @@
       document.querySelectorAll(".tree-item").forEach((item) => {
         const isDirectory = item.closest("li").querySelector("ul") !== null;
         if (!isDirectory) {
-          item.classList.add("file-item");
+          item.classList.add("node-item");
         }
       });
     </script>

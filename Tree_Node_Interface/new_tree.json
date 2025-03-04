@@ -1,0 +1,198 @@
+[
+  {
+    "name": "root",
+    "type": "root",
+    "collapsed": false,
+    "children": [
+      {
+        "name": "Tense-Aspect-Mood",
+        "type": "root",
+        "collapsed": false,
+        "children": [
+          {
+            "name": "Past",
+            "type": "root",
+            "collapsed": false,
+            "details": {
+              "field1": "Indicates actions, events, or states that happened before the present moment. "
+            },
+            "children": [
+              {
+                "name": "English",
+                "type": "node",
+                "collapsed": false,
+                "details": {
+                  "field2": "One day the princess decided that she did not like staying at home all day, so she told her mother that she wanted to get a job.",
+                  "field2Lang": "english"
+                }
+              },
+              {
+                "name": "Gujarati",
+                "type": "node",
+                "collapsed": false,
+                "details": {
+                  "field2": "એક દિવસ રાજાએ નક્કી કર્યું કે, તેમને આખો દિવસ ઘોડેસવારી કરવી ગમતી ન હતી, તેથી તેમણે મહામંત્રીને કહ્યું કે, તેમને હાથીની સવારી કરવાની ઈચ્છા હતી.",
+                  "field2Lang": "gujrati"
+                }
+              },
+              {
+                "name": "Telugu",
+                "type": "node",
+                "collapsed": false,
+                "details": {
+                  "field2": "ఒకరోజు రోజంతా ఇంట్లో ఉండటం ఇష్టం లేదని యువరాణి నిర్ణయించుకోగా, ఉద్యోగం రావాలని తల్లికి చెప్పింది.",
+                  "field2Lang": "telugu"
+                }
+              },
+              {
+                "name": "Habitual Actions",
+                "type": "root",
+                "collapsed": true,
+                "details": {
+                  "field1": "Used for repeated past actions"
+                },
+                "children": [
+                  {
+                    "name": "English",
+                    "type": "node",
+                    "collapsed": false,
+                    "details": {
+                      "field2": "He always walked to school.",
+                      "field2Lang": "english"
+                    }
+                  },
+                  {
+                    "name": "Gujarati",
+                    "type": "node",
+                    "collapsed": false,
+                    "details": {
+                      "field2": "તે હંમેશાં ધ્યાન કરીને જ દિવસની શરૂઆત કરતો હતો.",
+                      "field2Lang": "gujrati"
+                    }
+                  },
+                  {
+                    "name": "Telugu",
+                    "type": "node",
+                    "collapsed": false,
+                    "details": {
+                      "field2": "అతను ఎల్లప్పుడూ పాఠశాలకు నడిచేవాడు. ",
+                      "field2Lang": "telugu"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "In Reported Speech",
+                "type": "root",
+                "collapsed": false,
+                "details": {
+                  "field1": "Back shifting\nPast -> Past Perfect"
+                },
+                "children": [
+                  {
+                    "name": "English",
+                    "type": "node",
+                    "collapsed": false,
+                    "details": {
+                      "field2": "He said that he had eaten that mango.",
+                      "field2Lang": "english"
+                    }
+                  },
+                  {
+                    "name": "Gujarati",
+                    "type": "node",
+                    "collapsed": false,
+                    "details": {
+                      "field2": "તેણે કહ્યું કે, તે ત્યાં ફરવા ગયો હતો.",
+                      "field2Lang": "gujrati"
+                    }
+                  },
+                  {
+                    "name": "Telugu",
+                    "type": "node",
+                    "collapsed": false,
+                    "details": {
+                      "field2": "ఆమె భోజనం చేసిందని చెప్పింది.",
+                      "field2Lang": "telugu"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "Present",
+            "type": "root",
+            "collapsed": false,
+            "details": {
+              "field1": "Indicates actions, events, or states that are happening at the current moment"
+            },
+            "children": [
+              {
+                "name": "English",
+                "type": "node",
+                "collapsed": false,
+                "details": {
+                  "field2": "The girl plays tennis now.",
+                  "field2Lang": "english"
+                }
+              },
+              {
+                "name": "Hindi",
+                "type": "node",
+                "collapsed": false,
+                "details": {
+                  "field2": "लड़की अब टेनिस खेलती है।",
+                  "field2Lang": "hindi"
+                }
+              },
+              {
+                "name": "Telugu",
+                "type": "node",
+                "collapsed": false,
+                "details": {
+                  "field2": "అమ్మాయి టెన్నిస్ ఆడుతుంది.",
+                  "field2Lang": "telugu"
+                }
+              },
+              {
+                "name": "Universal Facts",
+                "type": "root",
+                "collapsed": false,
+                "children": [
+                  {
+                    "name": "English",
+                    "type": "node",
+                    "collapsed": false,
+                    "details": {
+                      "field2": "The Sun rises in the east.",
+                      "field2Lang": "english"
+                    }
+                  },
+                  {
+                    "name": "Hindi",
+                    "type": "node",
+                    "collapsed": false,
+                    "details": {
+                      "field2": "सूर्य पूर्व में उगता है।",
+                      "field2Lang": "hindi"
+                    }
+                  },
+                  {
+                    "name": "Telugu",
+                    "type": "node",
+                    "collapsed": false,
+                    "details": {
+                      "field2": "సూర్యుడు తూర్పున ఉదయిస్తాడు",
+                      "field2Lang": "telugu"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
