@@ -101,14 +101,6 @@
         display: none;
       }
 
-      .node-item .add-btn {
-        display: none;
-      }
-
-      .node-item .expand-btn {
-        visibility: hidden;
-      }
-
       .tree-controls {
         margin-bottom: 20px;
       }
@@ -126,34 +118,16 @@
         background: #e0e0e0;
       }
 
-      .node-item .name:hover {
-        text-decoration: underline;
-      }
-
-      /* Original details box style */
-      #details-box {
-        display: none;
-        position: absolute;
-        right: 10%;
-        top: 100px;
-        width: 20%;
-        border: 1px solid #ccc;
-        background: #fff;
-        padding: 10px;
-        z-index: 2000; /* Added */
-      }
-
       /* Add new folder contents box style */
       #folder-contents-box {
         display: none;
         position: absolute;
-        right: 40%;
-        top: 100px;
-        width: 20%;
+        right: 10%;
+        top: 10%;
+        width: 50%;
         border: 1px solid #ccc;
         background: #fff;
         padding: 10px;
-        z-index: 1000; /* Added */
       }
 
       .file-list {
@@ -171,10 +145,6 @@
         background: #f0f0f0;
       }
 
-      .file-path {
-        color: #666;
-        font-size: 0.9em;
-      }
 
       /* Additional spacing in the root details box */
       #folder-contents-box .file-list li {
@@ -189,17 +159,36 @@
   </head>
   <body>
     <div class="tree-controls">
-      <br />
       <button onclick="saveTree()">Save Tree</button>
       <input
-        type="file"
-        id="loadFile"
-        style="display: none"
-        onchange="loadTree(event)"
+      type="file"
+      id="loadFile"
+      style="display: none"
+      onchange="loadTree(event)"
       />
       <button onclick="document.getElementById('loadFile').click()">
         Load Tree
       </button>
+      <label>
+        <input type="checkbox" id="adminSwitch" onchange="toggleAdminMode()" />
+        Admin Mode
+      </label>
+      <br />
+      <br />
+      <label for="languageSelect">Select Language:</label>
+      <select id="languageSelect">
+        <option value="English" data-language="English">English</option>
+        <option value="Gujarati" data-language="Gujarati">Gujarati</option>
+        <option value="Kannada" data-language="Kannada">Kannada</option>
+        <option value="Hindi" data-language="Hindi">Hindi</option>
+        <option value="Telugu" data-language="Telugu">Telugu</option>
+        <option value="Tamil" data-language="Tamil">Tamil</option>
+        <option value="Punjabi" data-language="Punjabi">Punjabi</option>
+        <option value="Odia" data-language="Odia">Odia</option>
+        <option value="Urdu" data-language="Urdu">Urdu</option>
+        <option value="Sindhi" data-language="Sindhi">Sindhi</option>
+        <option value="Kashmiri" data-language="Kashmiri">Kashmiri</option>
+      </select>
     </div>
     <div class="tree">
       <ul id="root">
@@ -212,10 +201,6 @@
             </div>
             <div class="input-form">
               <input type="text" placeholder="Name" />
-              <select>
-                <option value="node">Node</option>
-                <option value="root">Root</option>
-              </select>
               <button onclick="addItem(this)">Add</button>
             </div>
           </div>
@@ -224,60 +209,33 @@
       </ul>
     </div>
 
-    <!-- Original details box -->
-    <div id="details-box">
-      <h3>
-        Node Details
-        <span style="float: right; cursor: pointer" onclick="closeDetailsBox()">[x]</span>
-      </h3>
-      <!-- Just keep 'Example' since 'Language' is no longer needed -->
-      <label>Example:
-        <select id="field2Lang">
-          <option value="english" selected>English</option>
-          <option value="gujrati">Gujarati</option>
-          <option value="kannada">Kannada</option>
-          <option value="telugu">Telugu</option>
-          <option value="tamil">Tamil</option>
-          <option value="hindi">Hindi</option>
-          <option value="odia">Odia</option>
-          <option value="sindhi">Sindhi</option>
-          <option value="kashmiri">Kashmiri</option>
-          <option value="malayalam">Punjabi</option>
-          <option value="punjabi">Urdu</option>
-        </select>
-        <br />
-        <br />
-        <textarea
-          id="field2"
-          rows="1"
-          style="overflow:hidden; width: 100%; resize: vertical; height: 70px;"
-          oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px';"
-        ></textarea>
-      </label>
-      <br /><br />
-      <button onclick="saveDetails()">Save</button>
-    </div>
-
     <!-- New folder contents box -->
     <div id="folder-contents-box">
       <h3>
         Type Details
-        <span style="float: right; cursor: pointer" onclick="closeFolderContentsBox()">[x]</span>
+        <span
+          style="float: right; cursor: pointer"
+          onclick="closeFolderContentsBox()"
+          >[x]</span
+        >
       </h3>
       <label>Type Name: <span id="folder-name-display"></span></label>
       <br /><br />
-      <!-- Change the 'Type Description' input -->
       <label>Type Description:
+        <br />
+        <br />
         <textarea
           id="folder-field1"
           rows="1"
-          style="overflow:hidden; width: 100%; resize: vertical; height: 70px;"
+          style="overflow: hidden; width: 100%; resize: vertical; height: 70px"
           oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px';"
         ></textarea>
       </label>
       <br /><br />
-      <h4>Nodes in this Root:</h4>
+      <h4>Examples for this type:</h4>
       <ul class="file-list" id="folder-files"></ul>
+      <button onclick="addExample()">Add Example</button>
+      <button onclick="saveExample()">Save Example</button>
       <button onclick="saveFolderDetails()">Save Root Details</button>
     </div>
 
@@ -306,7 +264,6 @@
         const input = form.querySelector("input");
         const select = form.querySelector("select");
         const name = input.value.trim();
-        const type = select.value;
 
         if (!name) return;
 
@@ -318,11 +275,10 @@
           parentLi.appendChild(parentUl);
         }
 
-        const isRoot = type === "root";
         const newLi = document.createElement("li");
         newLi.innerHTML = `
-          <div class="tree-item ${isRoot ? "root-item" : "node-item"}">
-            <span class="expand-btn">[+]</span>
+          <div class="tree-item "root-item">
+            <span class="expand-btn">[-]</span>
             <span class="name">${name}</span>
             <div class="actions">
               <button class="add-btn" onclick="showAddForm(this)">+</button>
@@ -330,21 +286,17 @@
             </div>
             <div class="input-form">
               <input type="text" placeholder="Name">
-              <select>
-                <option value="node">Node</option>
-                <option value="root">Root</option>
-              </select>
               <button onclick="addItem(this)">Add</button>
             </div>
           </div>
-          ${isRoot ? "<ul></ul>" : ""}
+          <ul></ul>
         `;
 
         const expandBtn = newLi.querySelector(".expand-btn");
         expandBtn.addEventListener("click", function () {
           const li = this.closest("li");
           const isCollapsed = li.classList.contains("collapsed");
-          this.textContent = isCollapsed ? "[+]" : "[-]";
+          this.textContent = isCollapsed ? "[-]" : "[+]";
           li.classList.toggle("collapsed");
         });
 
@@ -355,126 +307,77 @@
 
       function deleteItem(button) {
         const li = button.closest("li");
-        if (confirm("Are you sure you want to delete this item and all its contents?")) {
+        if (
+          confirm(
+            "Are you sure you want to delete this item and all its contents?"
+          )
+        ) {
           li.remove();
         }
       }
 
-      let currentFileLi = null;
-
       // Show details box when clicking a file name
       document.addEventListener("click", function (e) {
-        if (e.target.matches(".node-item .name")) {
-          currentFileLi = e.target.closest("li");
-          const details = currentFileLi.dataset.details
-            ? JSON.parse(currentFileLi.dataset.details)
-            : { field2: "", field2Lang: "english" };
-          
-          const field2Textarea = document.getElementById("field2");
-          field2Textarea.style.height = "70px";
-          field2Textarea.style.resize = "vertical";
-
-          document.getElementById("field2").value = details.field2 || "";
-          document.getElementById("field2Lang").value = details.field2Lang || "english";
-          document.getElementById("details-box").style.display = "block";
-        } else if (e.target.matches(".root-item .name")) {
-          // Show folder contents when clicking a directory name
+        // Show folder contents when clicking a directory name
+        if (e.target.classList.contains("name")) {
           const li = e.target.closest("li");
           showFolderContents(li);
         }
       });
-
-      // New function to get path to a node
-      function getPathToNode(element) {
-        const path = [];
-        let current = element;
-        while (current) {
-          const nameEl = current.querySelector('.name');
-          if (nameEl) {
-            path.unshift(nameEl.textContent);
-          }
-          current = current.parentElement.closest('li');
-        }
-        return path.join('/');
-      }
-
-      // New helper for relative paths
-      function getRelativePathToNode(baseLi, targetLi) {
-        const basePath = getPathToNode(baseLi).split('/');
-        const targetPath = getPathToNode(targetLi).split('/');
-        let i = 0;
-        while (i < basePath.length && i < targetPath.length && basePath[i] === targetPath[i]) {
-          i++;
-        }
-        return targetPath.slice(i).join('/');
-      }
 
       let currentFolderLi = null;
 
       // New function to show folder contents
       function showFolderContents(directoryLi) {
         currentFolderLi = directoryLi;
-        document.getElementById('folder-name-display').textContent =
-          directoryLi.querySelector('.name').textContent;
+        document.getElementById("folder-name-display").textContent =
+          directoryLi.querySelector(".name").textContent;
 
         const folderDetails = directoryLi.dataset.details
           ? JSON.parse(directoryLi.dataset.details)
-          : { field1: '', field2: '', field3: '' };
-        document.getElementById('folder-field1').value = folderDetails.field1 || '';
+          : { field1: "", field2: "", field3: "" };
+        document.getElementById("folder-field1").value =
+          folderDetails.field1 || "";
 
         // Populate file data
-        const filesList = document.getElementById('folder-files');
-        filesList.innerHTML = '';
-        const fileItems = directoryLi.querySelectorAll('.node-item');
-        fileItems.forEach((fileItem) => {
-          const li = fileItem.closest('li');
-          const name = fileItem.querySelector('.name').textContent;
-          const fileDetails = li.dataset.details
-        ? JSON.parse(li.dataset.details)
-        : { field1: '', field2: '', field3: '' };
+        const filesList = document.getElementById("folder-files");
+        filesList.innerHTML = "";
+        const examples = directoryLi.dataset.examples
+          ? JSON.parse(directoryLi.dataset.examples)
+          : [];
 
-          const listItem = document.createElement('li');
+        examples.forEach((example) => {
+          const listItem = document.createElement("li");
 
-          // Make file name a non-editable span
-          const fileNameSpan = document.createElement('span');
-          fileNameSpan.textContent = name;
+          const fileNameSpan = document.createElement("span");
+          fileNameSpan.textContent = example.language;
 
-          // Replace fileField1 with a textarea
-          const fileField1 = document.createElement('textarea');
-          fileField1.rows = 1;
-          fileField1.style.overflow = 'hidden';
-          fileField1.style.resize = 'vertical';
-          fileField1.oninput = function() {
-        this.style.height = 'auto';
-        this.style.height = this.scrollHeight + 'px';
+          const fileField2 = document.createElement("textarea");
+          fileField2.style.overflow = "hidden";
+          fileField2.style.resize = "vertical";
+          fileField2.style.width = "100%";
+          fileField2.style.height = "70px";
+          fileField2.value = example.description;
+
+          const deleteBtn = document.createElement("button");
+          deleteBtn.textContent = "Delete";
+          deleteBtn.className = "delete-btn";
+          deleteBtn.onclick = function () {
+            if (confirm("Are you sure you want to delete this example?")) {
+              listItem.remove();
+            }
           };
-          fileField1.value = fileDetails.field1;
-
-            // Replace fileField2 with a textarea
-            const fileField2 = document.createElement('textarea');
-            // fileField2.rows = 1;
-            fileField2.style.overflow = 'hidden';
-            fileField2.style.resize = 'vertical';
-            fileField2.style.width = '100%';
-            fileField2.style.height = '70px';
-            fileField2.oninput = function() {
-            //this.style.height = 'auto';
-            //this.style.height = this.scrollHeight + 'px';
-            };
-            fileField2.value = fileDetails.field2;
 
           listItem.appendChild(fileNameSpan);
-          listItem.appendChild(document.createElement('br'));
-          // listItem.appendChild(fileField1);
+          listItem.appendChild(document.createElement("br"));
           listItem.appendChild(fileField2);
+          listItem.appendChild(deleteBtn);
           filesList.appendChild(listItem);
         });
 
-        document.getElementById('folder-contents-box').style.display = 'block';
-      }
+        document.getElementById("folder-contents-box").style.display = "block";
 
-      function closeDetailsBox() {
-        document.getElementById("details-box").style.display = "none";
+        toggleAdminMode(); // Ensure the delete button visibility is updated
       }
 
       function closeFolderContentsBox() {
@@ -485,21 +388,23 @@
         if (!currentFolderLi) return;
 
         const folderDetails = {
-          field1: document.getElementById('folder-field1').value,
+          field1: document.getElementById("folder-field1").value,
         };
         currentFolderLi.dataset.details = JSON.stringify(folderDetails);
 
-        const filesListItems = document.getElementById('folder-files').querySelectorAll('li');
-        const fileItems = currentFolderLi.querySelectorAll('.node-item');
+        const filesListItems = document
+          .getElementById("folder-files")
+          .querySelectorAll("li");
+        const fileItems = currentFolderLi.querySelectorAll(".node-item");
 
         fileItems.forEach((item, index) => {
-          const textareas = filesListItems[index].querySelectorAll('textarea');
+          const textareas = filesListItems[index].querySelectorAll("textarea");
           const newField1 = textareas[0].value;
           const newField2 = textareas[1].value;
 
-          item.closest('li').dataset.details = JSON.stringify({
+          item.closest("li").dataset.details = JSON.stringify({
             field1: newField1,
-            field2: newField2
+            field2: newField2,
           });
         });
 
@@ -507,15 +412,65 @@
         closeFolderContentsBox();
       }
 
-      function saveDetails() {
-        if (!currentFileLi) return;
-        const details = {
-          field2: document.getElementById("field2").value,
-          field2Lang: document.getElementById("field2Lang").value
+      // Function to add a new example
+      function addExample() {
+        const filesList = document.getElementById("folder-files");
+        const listItem = document.createElement("li");
+
+        const languageSelect = document.getElementById("languageSelect");
+        const selectedLanguage = languageSelect.value;
+
+        const fileNameSpan = document.createElement("span");
+        fileNameSpan.textContent = selectedLanguage;
+
+        // This new example's textarea will be editable only for admin users
+        const fileField2 = document.createElement("textarea");
+        fileField2.style.overflow = "hidden";
+        fileField2.style.resize = "vertical";
+        fileField2.style.width = "100%";
+        fileField2.style.height = "70px";
+        fileField2.readOnly = document.getElementById("adminSwitch").checked ? false : true;
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.className = "delete-btn";
+        deleteBtn.onclick = function () {
+          if (confirm("Are you sure you want to delete this example?")) {
+            listItem.remove();
+          }
         };
-        currentFileLi.dataset.details = JSON.stringify(details);
-        alert("Details saved.");
-        closeDetailsBox();
+
+        listItem.appendChild(fileNameSpan);
+        listItem.appendChild(document.createElement("br"));
+        listItem.appendChild(fileField2);
+        listItem.appendChild(deleteBtn);
+        filesList.appendChild(listItem);
+
+        // Update the examples dataset
+        const examples = JSON.parse(currentFolderLi.dataset.examples || "[]");
+        examples.push({ language: selectedLanguage, description: "" });
+        currentFolderLi.dataset.examples = JSON.stringify(examples);
+
+        toggleAdminMode(); // Ensure the delete button visibility is updated
+      }
+
+      // Function to save the example
+      function saveExample() {
+        if (!currentFolderLi) return;
+
+        const filesList = document.getElementById("folder-files");
+        const examples = [];
+
+        filesList.querySelectorAll("li").forEach((listItem) => {
+          const language = listItem.querySelector("span").textContent;
+          const description = listItem.querySelector("textarea").value;
+          examples.push({ language, description });
+        });
+
+        currentFolderLi.dataset.examples = JSON.stringify(examples);
+
+        console.log("Saved Examples:", examples);
+        alert("Examples saved successfully!");
       }
 
       // Keep all original tree save/load functions
@@ -527,12 +482,13 @@
           const item = {};
           const nameSpan = li.querySelector(".name");
           item.name = nameSpan.textContent;
-          item.type = li.querySelector(".tree-item").classList.contains("node-item")
-            ? "node"
-            : "root";
+          item.type = li.querySelector(".tree-item").classList.contains("root-item") ? "root" : "node";
           item.collapsed = li.classList.contains("collapsed");
           if (li.dataset.details) {
             item.details = JSON.parse(li.dataset.details);
+          }
+          if (li.dataset.examples) {
+            item.examples = JSON.parse(li.dataset.examples);
           }
 
           const ul = li.querySelector("ul");
@@ -602,30 +558,28 @@
 
                   const isRoot = item.type === "root";
                   li.innerHTML = `
-                  <div class="tree-item ${
-                    isRoot ? "root-item" : "node-item"
-                  }">
-                    <span class="expand-btn">[${
-                      item.collapsed ? "+" : "-"
-                    }]</span>
-                    <span class="name">${item.name}</span>
-                    <div class="actions">
-                      <button class="add-btn" onclick="showAddForm(this)">+</button>
-                      <button class="delete-btn" onclick="deleteItem(this)">×</button>
+                    <div class="tree-item ${isRoot ? "root-item" : "node-item"}">
+                      <span class="expand-btn">${item.collapsed ? "[+]" : "[-]"}</span>
+                      <span class="name">${item.name}</span>
+                      <div class="actions">
+                        <button class="add-btn" onclick="showAddForm(this)">+</button>
+                        <button class="delete-btn" onclick="deleteItem(this)">×</button>
+                      </div>
+                      <div class="input-form">
+                        <input type="text" placeholder="Name">
+                        <select>
+                          <option value="node">Node</option>
+                          <option value="root">Root</option>
+                        </select>
+                        <button onclick="addItem(this)">Add</button>
+                      </div>
                     </div>
-                    <div class="input-form">
-                      <input type="text" placeholder="Name">
-                      <select>
-                        <option value="node">Node</option>
-                        <option value="root">Root</option>
-                      </select>
-                      <button onclick="addItem(this)">Add</button>
-                    </div>
-                  </div>
-                `;
-                  // Restore details if present
+                  `;
                   if (item.details) {
                     li.dataset.details = JSON.stringify(item.details);
+                  }
+                  if (item.examples) {
+                    li.dataset.examples = JSON.stringify(item.examples);
                   }
 
                   if (item.children) {
@@ -653,10 +607,87 @@
       // Initialize all items
       document.querySelectorAll(".tree-item").forEach((item) => {
         const isDirectory = item.closest("li").querySelector("ul") !== null;
-        if (!isDirectory) {
-          item.classList.add("node-item");
-        }
       });
+
+      // Function to toggle admin mode
+      function toggleAdminMode() {
+        const isAdmin = document.getElementById("adminSwitch").checked;
+        // Applies to the tree controls (add and delete buttons within tree items)
+        document.querySelectorAll(".add-btn, .delete-btn").forEach((btn) => {
+          btn.style.display = isAdmin ? "inline-block" : "none";
+        });
+
+        // Make Type Description editable only in admin mode
+        document.getElementById("folder-field1").disabled = !isAdmin;
+
+        // Disable English option if not admin
+        const englishOption = document.querySelector('#languageSelect option[value="English"]');
+        if (!isAdmin) {
+          englishOption.disabled = true;
+          if (document.getElementById("languageSelect").value === "English") {
+            document.getElementById("languageSelect").value = "Gujarati"; // Default to another language
+          }
+        } else {
+          englishOption.disabled = false;
+        }
+
+        // Refresh the examples list to update visibility based on the current admin state
+        filterExamples();
+      }
+
+      // Function to filter examples based on selected language and admin status
+      function filterExamples() {
+        // Ensure a folder is selected
+        if (!currentFolderLi) return;
+
+        const selectedLanguage = document.getElementById("languageSelect").value;
+        const isAdmin = document.getElementById("adminSwitch").checked;
+        const filesList = document.getElementById("folder-files");
+        const examples = JSON.parse(currentFolderLi.dataset.examples || "[]");
+
+        filesList.innerHTML = "";
+        examples.forEach((example) => {
+          // If admin, show all examples; if not, show only those matching selected language or English
+          if (isAdmin || example.language === selectedLanguage || example.language === "English") {
+            const listItem = document.createElement("li");
+
+            const fileNameSpan = document.createElement("span");
+            fileNameSpan.textContent = example.language;
+
+            const fileField2 = document.createElement("textarea");
+            fileField2.style.overflow = "hidden";
+            fileField2.style.resize = "vertical";
+            fileField2.style.width = "100%";
+            fileField2.style.height = "70px";
+            fileField2.value = example.description;
+            // For non-admin users, if enlish is selected, make the textarea readonly
+            fileField2.readOnly = !isAdmin && example.language === "English" ? true : false;
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Delete";
+            deleteBtn.className = "delete-btn";
+            // Only show delete button for admin users
+            deleteBtn.style.display = isAdmin ? "inline-block" : "none";
+            deleteBtn.onclick = function () {
+              if (confirm("Are you sure you want to delete this example?")) {
+                listItem.remove();
+              }
+            };
+
+            listItem.appendChild(fileNameSpan);
+            listItem.appendChild(document.createElement("br"));
+            listItem.appendChild(fileField2);
+            listItem.appendChild(deleteBtn);
+            filesList.appendChild(listItem);
+          }
+        });
+      }
+
+      // Call filterExamples when language is changed
+      document.getElementById("languageSelect").addEventListener("change", filterExamples);
+
+      // Call toggleAdminMode on page load to set initial state
+      toggleAdminMode();
     </script>
   </body>
 </html>
