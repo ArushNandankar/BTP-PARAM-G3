@@ -123,7 +123,7 @@
         display: none;
         position: absolute;
         right: 10%;
-        top: 10%;
+        top: 20%;
         width: 50%;
         border: 1px solid #ccc;
         background: #fff;
@@ -145,7 +145,6 @@
         background: #f0f0f0;
       }
 
-
       /* Additional spacing in the root details box */
       #folder-contents-box .file-list li {
         margin-bottom: 15px;
@@ -155,20 +154,30 @@
         display: block;
         margin-bottom: 5px;
       }
+
+      #folder-files {
+        display: flex;
+        gap: 20px;
+        padding: 0;
+        margin: 0;
+      }
+      #folder-files ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        flex: 1;
+      }
+      #folder-files ul li {
+        margin-bottom: 15px;
+        line-height: 1.6;
+      }
     </style>
   </head>
   <body>
     <div class="tree-controls">
       <button onclick="saveTree()">Save Tree</button>
-      <input
-      type="file"
-      id="loadFile"
-      style="display: none"
-      onchange="loadTree(event)"
-      />
-      <button onclick="document.getElementById('loadFile').click()">
-        Load Tree
-      </button>
+      <input type="file" id="loadFile" style="display: none" onchange="loadTree(event)" />
+      <button onclick="document.getElementById('loadFile').click()">Load Tree</button>
       <label>
         <input type="checkbox" id="adminSwitch" onchange="toggleAdminMode()" />
         Admin Mode
@@ -189,6 +198,21 @@
         <option value="Sindhi" data-language="Sindhi">Sindhi</option>
         <option value="Kashmiri" data-language="Kashmiri">Kashmiri</option>
       </select>
+      <label for="referenceLanguageSelect">Reference Language:</label>
+      <select id="referenceLanguageSelect">
+        <option value="English" data-language="English">English</option>
+        <option value="Gujarati" data-language="Gujarati">Gujarati</option>
+        <option value="Kannada" data-language="Kannada">Kannada</option>
+        <option value="Hindi" data-language="Hindi">Hindi</option>
+        <option value="Telugu" data-language="Telugu">Telugu</option>
+        <option value="Tamil" data-language="Tamil">Tamil</option>
+        <option value="Punjabi" data-language="Punjabi">Punjabi</option>
+        <option value="Odia" data-language="Odia">Odia</option>
+        <option value="Urdu" data-language="Urdu">Urdu</option>
+        <option value="Sindhi" data-language="Sindhi">Sindhi</option>
+        <option value="Kashmiri" data-language="Kashmiri">Kashmiri</option>
+      </select>
+      <button onclick="toggleTreeVisibility()" id="toggleTreeButton">Hide Tree</button>
     </div>
     <div class="tree">
       <ul id="root">
@@ -392,22 +416,6 @@
         };
         currentFolderLi.dataset.details = JSON.stringify(folderDetails);
 
-        const filesListItems = document
-          .getElementById("folder-files")
-          .querySelectorAll("li");
-        const fileItems = currentFolderLi.querySelectorAll(".node-item");
-
-        fileItems.forEach((item, index) => {
-          const textareas = filesListItems[index].querySelectorAll("textarea");
-          const newField1 = textareas[0].value;
-          const newField2 = textareas[1].value;
-
-          item.closest("li").dataset.details = JSON.stringify({
-            field1: newField1,
-            field2: newField2,
-          });
-        });
-
         alert("Folder details updated!");
         closeFolderContentsBox();
       }
@@ -457,18 +465,27 @@
       // Function to save the example
       function saveExample() {
         if (!currentFolderLi) return;
-
-        const filesList = document.getElementById("folder-files");
-        const examples = [];
-
-        filesList.querySelectorAll("li").forEach((listItem) => {
-          const language = listItem.querySelector("span").textContent;
-          const description = listItem.querySelector("textarea").value;
-          examples.push({ language, description });
+        const filesContainer = document.getElementById("folder-files");
+        const groups = filesContainer.querySelectorAll("ul");
+        let examples = [];
+        groups.forEach((group) => {
+          // Use the header (first li) in the group to determine the language.
+          const header = group.firstElementChild;
+          if (!header) return;
+          const language = header.textContent.trim();
+          // Loop over the remaining items in this group.
+          const exampleItems = group.querySelectorAll("li:not(:first-child)");
+          exampleItems.forEach((item) => {
+            const textarea = item.querySelector("textarea");
+            if (textarea) {
+              examples.push({
+                language: language,
+                description: textarea.value,
+              });
+            }
+          });
         });
-
         currentFolderLi.dataset.examples = JSON.stringify(examples);
-
         console.log("Saved Examples:", examples);
         alert("Examples saved successfully!");
       }
@@ -637,63 +654,147 @@
 
       // Function to filter examples based on selected language and admin status
       function filterExamples() {
-        // Ensure a folder is selected
         if (!currentFolderLi) return;
-
-        const selectedLanguage = document.getElementById("languageSelect").value;
+        const userLang = document.getElementById("languageSelect").value;
         const isAdmin = document.getElementById("adminSwitch").checked;
-        const filesList = document.getElementById("folder-files");
-        const examples = JSON.parse(currentFolderLi.dataset.examples || "[]");
+        const filesContainer = document.getElementById("folder-files");
+        filesContainer.innerHTML = "";
 
-        filesList.innerHTML = "";
-        examples.forEach((example) => {
-          // If admin, show all examples; if not, show only those matching selected language or English
-          // if (isAdmin || example.language === selectedLanguage || example.language === "English") {
+        let columns = [];
 
+        if (isAdmin) {
+          // Admin mode: grouping examples by language remains unchanged
+          const groupMap = {};
+          const examples = JSON.parse(currentFolderLi.dataset.examples || "[]");
+          examples.forEach((example) => {
+            if (!groupMap[example.language]) {
+              const ul = document.createElement("ul");
+              ul.style.margin = "0";
+              const header = document.createElement("li");
+              header.style.fontWeight = "bold";
+              header.textContent = example.language;
+              ul.appendChild(header);
+              groupMap[example.language] = ul;
+            }
             const listItem = document.createElement("li");
-
-            const fileNameSpan = document.createElement("span");
-            fileNameSpan.textContent = example.language;
-
             const fileField2 = document.createElement("textarea");
             fileField2.style.overflow = "hidden";
             fileField2.style.resize = "vertical";
             fileField2.style.width = "100%";
             fileField2.style.height = "70px";
             fileField2.value = example.description;
-            // For non-admin users, make the textarea readonly if the language is not the selected one
-            fileField2.readOnly = !isAdmin && example.language !== selectedLanguage;
-
+            fileField2.readOnly = false;
             const deleteBtn = document.createElement("button");
             deleteBtn.textContent = "Delete";
             deleteBtn.className = "delete-btn";
-            // Only show delete button for admin users
-            deleteBtn.style.display = isAdmin ? "inline-block" : "none";
+            deleteBtn.style.display = "inline-block";
             deleteBtn.onclick = function () {
               if (confirm("Are you sure you want to delete this example?")) {
                 listItem.remove();
               }
             };
-
-            // if the language is different from the selected language hide it
-            if (!isAdmin && (example.language !== selectedLanguage && example.language !== "English")) {
-              listItem.style.display = "none";
-            }
-
-            listItem.appendChild(fileNameSpan);
-            listItem.appendChild(document.createElement("br"));
             listItem.appendChild(fileField2);
             listItem.appendChild(deleteBtn);
-            filesList.appendChild(listItem);
-          // }
-        });
+            groupMap[example.language].appendChild(listItem);
+          });
+          for (const lang in groupMap) {
+            if (groupMap[lang].children.length > 1) { // header + at least one example
+              columns.push(groupMap[lang]);
+            }
+          }
+        } else {
+          // Non-admin: show examples for both the user's language and the reference language
+          const referenceLang = document.getElementById("referenceLanguageSelect").value;
+          const languagesToShow = new Set([userLang, referenceLang]);
+          const groupMap = {};
+          const examples = JSON.parse(currentFolderLi.dataset.examples || "[]");
+          examples.forEach((example) => {
+            if (languagesToShow.has(example.language)) {
+              if (!groupMap[example.language]) {
+                const ul = document.createElement("ul");
+                ul.style.margin = "0";
+                const header = document.createElement("li");
+                header.style.fontWeight = "bold";
+                header.textContent = example.language;
+                ul.appendChild(header);
+                groupMap[example.language] = ul;
+              }
+              const listItem = document.createElement("li");
+              const fileField2 = document.createElement("textarea");
+              fileField2.style.overflow = "hidden";
+              fileField2.style.resize = "vertical";
+              fileField2.style.width = "100%";
+              fileField2.style.height = "70px";
+              fileField2.value = example.description;
+              // Editable only if it matches the user language:
+              fileField2.readOnly = example.language !== userLang;
+              listItem.appendChild(fileField2);
+              groupMap[example.language].appendChild(listItem);
+            }
+          });
+          if (groupMap[userLang]) columns.push(groupMap[userLang]);
+          if (userLang !== referenceLang && groupMap[referenceLang]) {
+            columns.push(groupMap[referenceLang]);
+          }
+        }
+
+        // Append columns and recalc width proportionally.
+        if (columns.length > 0) {
+          if (columns.length === 1) {
+            filesContainer.appendChild(columns[0]);
+          } else {
+            // Create a full-width flex container
+            const flexContainer = document.createElement("div");
+            flexContainer.style.display = "flex";
+            flexContainer.style.gap = "20px";
+            flexContainer.style.width = "100%";
+
+            if (columns.length === 2) {
+              // Force 50% width per column
+              columns.forEach((col) => {
+                col.style.flex = "0 1 50%";
+              });
+            } else {
+              // Otherwise, use the generic calc width
+              columns.forEach((col) => {
+                col.style.flex = `0 1 calc((100% - ${((columns.length - 1) * 20)}px) / ${columns.length})`;
+              });
+            }
+            columns.forEach((col) => flexContainer.appendChild(col));
+            filesContainer.appendChild(flexContainer);
+          }
+        }
       }
 
       // Call filterExamples when language is changed
       document.getElementById("languageSelect").addEventListener("change", filterExamples);
+      document.getElementById("referenceLanguageSelect").addEventListener("change", filterExamples);
 
       // Call toggleAdminMode on page load to set initial state
       toggleAdminMode();
+
+      function toggleTreeVisibility() {
+        const treeContainer = document.querySelector('.tree');
+        const btn = document.getElementById('toggleTreeButton');
+        const folderBox = document.getElementById('folder-contents-box');
+
+        if (treeContainer.style.display === 'none') {
+          // Show the tree and reset folder box style
+          treeContainer.style.display = 'block';
+          btn.textContent = 'Hide Tree';
+          folderBox.style.width = '50%';
+          folderBox.style.right = '10%';
+          folderBox.style.left = '';
+        } else {
+          // Hide the tree and expand the folder box horizontally
+          treeContainer.style.display = 'none';
+          btn.textContent = 'Show Tree';
+          // Adjust these values as needed to fill the empty left space 
+          folderBox.style.width = '80%';
+          folderBox.style.left = '10%';
+          folderBox.style.right = '';
+        }
+      }
     </script>
   </body>
 </html>

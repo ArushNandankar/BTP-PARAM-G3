@@ -19,6 +19,10 @@
           {
             "language": "Telugu",
             "description": "ఒకరోజు రోజంతా ఇంట్లో ఉండటం ఇష్టం లేదని యువరాణి నిర్ణయించుకోగా, ఉద్యోగం రావాలని తల్లికి చెప్పింది."
+          },
+          {
+            "language": "Gujarati",
+            "description": "એક દિવસ રાજાએ નક્કી કર્યું કે, તેમને આખો દિવસ ઘોડેસવારી કરવી ગમતી ન હતી, તેથી તેમણે મહામંત્રીને કહ્યું કે, તેમને હાથીની સવારી કરવાની ઈચ્છા હતી."
           }
         ],
         "children": [
@@ -53,6 +57,18 @@
               {
                 "language": "Telugu",
                 "description": "అతను ప్రతిరోజూ పుస్తకాలు చదివేవాడు."
+              },
+              {
+                "language": "Gujarati",
+                "description": "તે હંમેશાં ધ્યાન કરીને જ દિવસની શરૂઆત કરતો હતો."
+              },
+              {
+                "language": "Gujarati",
+                "description": "હું શાળાએ સમયસર જતો હતો."
+              },
+              {
+                "language": "Gujarati",
+                "description": "તે નાનો હતો ત્યારે દરરોજ વાર્તાના પુસ્તકો વાંચતો હતો."
               }
             ]
           },
@@ -71,6 +87,10 @@
               {
                 "language": "Telugu",
                 "description": "ఆమె భోజనం చేసిందని చెప్పింది."
+              },
+              {
+                "language": "Gujarati",
+                "description": "તેણે કહ્યું કે, તે ત્યાં ફરવા ગયો હતો."
               }
             ]
           }
@@ -87,6 +107,14 @@
           {
             "language": "English",
             "description": "The girl plays tennis now."
+          },
+          {
+            "language": "Gujarati",
+            "description": "તેણીની અત્યારે સફરજન ખાઈ રહી છે."
+          },
+          {
+            "language": "Telugu",
+            "description": "તેણીની અત્યારે સફરજન ખાઈ રહી છે."
           }
         ],
         "children": [
@@ -98,6 +126,14 @@
               {
                 "language": "English",
                 "description": "The sun rises in the east."
+              },
+              {
+                "language": "Telugu",
+                "description": "సూర్యుడు తూర్పున ఉదయిస్తాడు."
+              },
+              {
+                "language": "Gujarati",
+                "description": "સૂર્ય પૂર્વમાં ઊગે છે."
               }
             ]
           },
