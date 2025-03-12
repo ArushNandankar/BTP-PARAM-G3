@@ -1,0 +1,143 @@
+* {
+  font-family: "Courier New", Courier, monospace;
+}
+.tree {
+  padding: 20px;
+}
+.tree ul {
+  position: relative;
+  padding: 1em 0 0 1em;
+  list-style: none;
+  margin: 0;
+}
+.tree li {
+  position: relative;
+  padding: 0 0 1em 1em;
+}
+.tree li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -1px;
+  bottom: 0;
+  width: 2px;
+  background: #888;
+}
+.tree li::after {
+  content: "";
+  position: absolute;
+  top: 1em;
+  left: 0;
+  width: 1em;
+  height: 2px;
+  background: #888;
+}
+.tree li:last-child::before {
+  height: 1em;
+  bottom: auto;
+}
+.tree-item {
+  position: relative;
+  padding: 3px 5px;
+  display: inline-block;
+}
+.actions {
+  display: inline-block;
+  margin-left: 10px;
+}
+.add-btn,
+.delete-btn {
+  padding: 2px 6px;
+  margin: 0 2px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: #fff;
+}
+.add-btn:hover,
+.delete-btn:hover {
+  background: #f0f0f0;
+}
+.delete-btn {
+  color: #d33;
+}
+.input-form {
+  display: none;
+  margin: 5px 0;
+  padding: 5px;
+}
+.input-form.active {
+  display: block;
+}
+.input-form input {
+  padding: 4px;
+  margin-right: 5px;
+}
+.expand-btn {
+  cursor: pointer;
+  user-select: none;
+  margin-right: 5px;
+}
+.collapsed > ul {
+  display: none;
+}
+.tree-controls {
+  margin-bottom: 20px;
+}
+.tree-controls button {
+  padding: 8px 16px;
+  margin-right: 10px;
+  cursor: pointer;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.tree-controls button:hover {
+  background: #e0e0e0;
+}
+#folder-contents-box {
+  display: none;
+  position: absolute;
+  right: 10%;
+  top: 20%;
+  width: 50%;
+  border: 1px solid #ccc;
+  background: #fff;
+  padding: 10px;
+}
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.file-list li {
+  padding: 5px;
+  cursor: pointer;
+}
+.file-list li:hover {
+  background: #f0f0f0;
+}
+#folder-contents-box .file-list li {
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+#folder-contents-box .file-list li input {
+  display: block;
+  margin-bottom: 5px;
+}
+#folder-files {
+  display: flex;
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+}
+#folder-files ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+}
+#folder-files ul li {
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
