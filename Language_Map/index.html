@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>India Language Feature Map</title>
+  <style>
+    .country {
+      fill: #ddd;
+      stroke: #fff;
+    }
+    .marker {
+      stroke: black;
+      stroke-width: 0.5px;
+    }
+    .label {
+      font-size: 12px;
+      fill: black;
+    }
+    .legend text {
+      font-size: 12px;
+      fill: black;
+    }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 10px;
+    }
+    select {
+      margin: 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <select id="tenseSelect"></select>
+  <select id="featureSelect"></select>
+  <svg width="960" height="600"></svg>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://d3js.org/topojson.v3.min.js"></script>
+  
+  <script src="linguisticData.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
