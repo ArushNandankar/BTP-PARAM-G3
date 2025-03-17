@@ -1,4 +1,3 @@
-// This file stores your linguistic features JSON data.
 const linguisticData = [
   {
     "name": "root",
