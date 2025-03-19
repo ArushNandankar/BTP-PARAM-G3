@@ -147,7 +147,7 @@ function addExample() {
   fileField2.readOnly = document.getElementById("adminSwitch").checked
     ? false
     : true;
-  
+
   const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "Delete";
   deleteBtn.className = "delete-btn";
@@ -166,7 +166,7 @@ function addExample() {
     featureCheckbox.className = "feature-checkbox";
     // New examples start unchecked:
     featureCheckbox.checked = false;
-    
+
     featureLabel = document.createElement("label");
     featureLabel.textContent = " Feature present: ";
   }
@@ -184,7 +184,11 @@ function addExample() {
 
   // Update the folder's examples data (include feature flag)
   const examples = JSON.parse(currentFolderLi.dataset.examples || "[]");
-  examples.push({ language: selectedLanguage, description: "", featurepresent: false });
+  examples.push({
+    language: selectedLanguage,
+    description: "",
+    featurepresent: false,
+  });
   currentFolderLi.dataset.examples = JSON.stringify(examples);
   toggleAdminMode();
 }
@@ -208,12 +212,20 @@ function saveExample() {
         const checkbox = item.querySelector(".feature-checkbox");
         const feature = checkbox ? checkbox.checked : false;
         const commentTextarea = item.querySelector(".comment-textarea");
-        const comment = commentTextarea ? commentTextarea.value : "";
+        let comment = "";
+        if (commentTextarea) {
+          comment = commentTextarea.value;
+        } else {
+          const commentDisplay = item.querySelector(".comment-display");
+          if (commentDisplay) {
+            comment = commentDisplay.textContent;
+          }
+        }
         examples.push({
           language: language,
           description: textarea.value,
           featurepresent: feature,
-          comment: comment
+          comment: comment,
         });
       }
     });
@@ -367,7 +379,7 @@ function filterExamples() {
   const filesContainer = document.getElementById("folder-files");
   filesContainer.innerHTML = "";
   let columns = [];
-  
+
   if (isAdmin) {
     const groupMap = {};
     const examples = JSON.parse(currentFolderLi.dataset.examples || "[]");
@@ -401,7 +413,7 @@ function filterExamples() {
 
       listItem.appendChild(fileField2);
       listItem.appendChild(deleteBtn);
-      
+
       const featureCheckbox = document.createElement("input");
       featureCheckbox.type = "checkbox";
       featureCheckbox.className = "feature-checkbox";
@@ -411,11 +423,11 @@ function filterExamples() {
         featureCheckbox.disabled = true;
       }
       listItem.appendChild(featureCheckbox);
-      
+
       const featureLabel = document.createElement("label");
       featureLabel.textContent = " Feature present: ";
       listItem.appendChild(featureLabel);
-      
+
       // If feature is present, add a button to add a comment
       if (example.featurepresent) {
         if (example.comment && example.comment.trim() !== "") {
@@ -442,32 +454,32 @@ function filterExamples() {
               commentInput.placeholder = "Enter comment";
               commentInput.classList.add("comment-textarea");
               // Pre-fill with existing comment if available (should be empty in this branch)
-                      commentInput.value = example.comment || "";
-                      const saveCommentBtn = document.createElement("button");
-                      saveCommentBtn.textContent = "Save Comment";
-                      saveCommentBtn.onclick = function () {
-                        example.comment = commentInput.value;
-                        alert("Comment saved");
-                        saveExample();
-                        // After saving, if a non-empty comment exists, replace the button with the comment display
-                        if (example.comment && example.comment.trim() !== "") {
-                          commentDiv.remove();
-                          commentButton.remove();
-                          const commentDisplay = document.createElement("span");
-                          commentDisplay.textContent = example.comment;
-                          commentDisplay.className = "comment-display";
-                          listItem.appendChild(commentDisplay);
-                        }
-                      };
-                      commentDiv.appendChild(commentInput);
-                      commentDiv.appendChild(saveCommentBtn);
-                      listItem.appendChild(commentDiv);
-                    }
-                  };
-                  listItem.appendChild(commentButton);
+              commentInput.value = example.comment || "";
+              const saveCommentBtn = document.createElement("button");
+              saveCommentBtn.textContent = "Save Comment";
+              saveCommentBtn.onclick = function () {
+                example.comment = commentInput.value;
+                alert("Comment saved");
+                saveExample();
+                // After saving, if a non-empty comment exists, replace the button with the comment display
+                if (example.comment && example.comment.trim() !== "") {
+                  commentDiv.remove();
+                  commentButton.remove();
+                  const commentDisplay = document.createElement("span");
+                  commentDisplay.textContent = example.comment;
+                  commentDisplay.className = "comment-display";
+                  listItem.appendChild(commentDisplay);
                 }
-              }
-      
+              };
+              commentDiv.appendChild(commentInput);
+              commentDiv.appendChild(saveCommentBtn);
+              listItem.appendChild(commentDiv);
+            }
+          };
+          listItem.appendChild(commentButton);
+        }
+      }
+
       groupMap[example.language].appendChild(listItem);
     });
     for (const lang in groupMap) {
@@ -476,8 +488,12 @@ function filterExamples() {
       }
     }
   } else {
-    const referenceLang = document.getElementById("referenceLanguageSelect").value;
-    const referenceLang2 = document.getElementById("referenceLanguageSelect2").value;
+    const referenceLang = document.getElementById(
+      "referenceLanguageSelect"
+    ).value;
+    const referenceLang2 = document.getElementById(
+      "referenceLanguageSelect2"
+    ).value;
     const languagesToShow = new Set([userLang, referenceLang]);
     if (referenceLang2 != "None") {
       languagesToShow.add(referenceLang2);
@@ -505,7 +521,7 @@ function filterExamples() {
         // Only allow editing when the example is of the user-selected language:
         fileField2.readOnly = example.language !== userLang;
         listItem.appendChild(fileField2);
-        
+
         const featureCheckbox = document.createElement("input");
         featureCheckbox.type = "checkbox";
         featureCheckbox.className = "feature-checkbox";
@@ -515,7 +531,7 @@ function filterExamples() {
           featureCheckbox.disabled = true;
         }
         listItem.appendChild(featureCheckbox);
-        
+
         const featureLabel = document.createElement("label");
         featureLabel.textContent = " Feature present: ";
         listItem.appendChild(featureLabel);
@@ -541,30 +557,30 @@ function filterExamples() {
                 commentInput.placeholder = "Enter comment";
                 commentInput.classList.add("comment-textarea");
                 // Pre-fill with existing comment if available
-                        commentInput.value = example.comment || "";
-                        const saveCommentBtn = document.createElement("button");
-                        saveCommentBtn.textContent = "Save Comment";
-                        saveCommentBtn.onclick = function () {
-                          example.comment = commentInput.value;
-                          alert("Comment saved");
-                          saveExample();
-                          if (example.comment && example.comment.trim() !== "") {
-                            commentDiv.remove();
-                            commentButton.remove();
-                            const commentDisplay = document.createElement("span");
-                            commentDisplay.textContent = example.comment;
-                            commentDisplay.className = "comment-display";
-                            listItem.appendChild(commentDisplay);
-                          }
-                        };
-                        commentDiv.appendChild(commentInput);
-                        commentDiv.appendChild(saveCommentBtn);
-                        listItem.appendChild(commentDiv);
-                      }
-                    };
-                    listItem.appendChild(commentButton);
+                commentInput.value = example.comment || "";
+                const saveCommentBtn = document.createElement("button");
+                saveCommentBtn.textContent = "Save Comment";
+                saveCommentBtn.onclick = function () {
+                  example.comment = commentInput.value;
+                  alert("Comment saved");
+                  saveExample();
+                  if (example.comment && example.comment.trim() !== "") {
+                    commentDiv.remove();
+                    commentButton.remove();
+                    const commentDisplay = document.createElement("span");
+                    commentDisplay.textContent = example.comment;
+                    commentDisplay.className = "comment-display";
+                    listItem.appendChild(commentDisplay);
                   }
-                }
+                };
+                commentDiv.appendChild(commentInput);
+                commentDiv.appendChild(saveCommentBtn);
+                listItem.appendChild(commentDiv);
+              }
+            };
+            listItem.appendChild(commentButton);
+          }
+        }
         groupMap[example.language].appendChild(listItem);
       }
     });
@@ -572,7 +588,11 @@ function filterExamples() {
     if (userLang !== referenceLang && groupMap[referenceLang]) {
       columns.push(groupMap[referenceLang]);
     }
-    if (userLang !== referenceLang2 && groupMap[referenceLang2] && referenceLang2 != "None") {
+    if (
+      userLang !== referenceLang2 &&
+      groupMap[referenceLang2] &&
+      referenceLang2 != "None"
+    ) {
       columns.push(groupMap[referenceLang2]);
     }
   }
@@ -591,7 +611,9 @@ function filterExamples() {
         });
       } else {
         columns.forEach((col) => {
-          col.style.flex = `0 1 calc((100% - ${(columns.length - 1) * 20}px) / ${columns.length})`;
+          col.style.flex = `0 1 calc((100% - ${
+            (columns.length - 1) * 20
+          }px) / ${columns.length})`;
         });
       }
       columns.forEach((col) => flexContainer.appendChild(col));
