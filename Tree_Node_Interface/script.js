@@ -168,7 +168,7 @@ function addExample() {
     featureCheckbox.checked = false;
     
     featureLabel = document.createElement("label");
-    featureLabel.textContent = " Feature present";
+    featureLabel.textContent = " Feature present: ";
   }
 
   listItem.appendChild(fileNameSpan);
@@ -297,20 +297,20 @@ function loadTree(event) {
             if (item.collapsed) li.classList.add("collapsed");
             const isRoot = item.type === "root";
             li.innerHTML = `
-                             <div class=\"tree-item ${
+                             <div class="tree-item ${
                                isRoot ? "root-item" : "node-item"
-                             }\">
-                           <span class=\"expand-btn\">${
+                             }">
+                           <span class="expand-btn">${
                              item.collapsed ? "[+]" : "[-]"
                            }</span>
-                           <span class=\"name\">${item.name}</span>
-                           <div class=\"actions\">
-                             <button class=\"add-btn\" onclick=\"showAddForm(this)\">+</button>
-                             <button class=\"delete-btn\" onclick=\"deleteItem(this)\">x</button>
+                           <span class="name">${item.name}</span>
+                           <div class="actions">
+                             <button class="add-btn" onclick="showAddForm(this)">+</button>
+                             <button class="delete-btn" onclick="deleteItem(this)">x</button>
                            </div>
-                           <div class=\"input-form\">
-                             <input type=\"text\" placeholder=\"Name\">
-                             <button onclick=\"addItem(this)\">Add</button>
+                           <div class="input-form">
+                             <input type="text" placeholder="Name">
+                             <button onclick="addItem(this)">Add</button>
                            </div>
                          </div>
                        `;
@@ -413,41 +413,60 @@ function filterExamples() {
       listItem.appendChild(featureCheckbox);
       
       const featureLabel = document.createElement("label");
-      featureLabel.textContent = " Feature present";
+      featureLabel.textContent = " Feature present: ";
       listItem.appendChild(featureLabel);
       
       // If feature is present, add a button to add a comment
       if (example.featurepresent) {
-        const commentButton = document.createElement("button");
-        commentButton.textContent = "Add Comment";
-        commentButton.onclick = function () {
-          let existingCommentDiv = listItem.querySelector(".comment-div");
-          if (existingCommentDiv) {
-            // If comment div exists, remove it
-            existingCommentDiv.remove();
-          } else {
-            // Create a new comment div
-            const commentDiv = document.createElement("div");
-            commentDiv.className = "comment-div";
-            const commentInput = document.createElement("input");
-            commentInput.type = "text";
+        if (example.comment && example.comment.trim() !== "") {
+          // If a comment exists, display it instead of the Add Comment button
+          const commentDisplay = document.createElement("span");
+          commentDisplay.textContent = example.comment;
+          commentDisplay.className = "comment-display";
+          listItem.appendChild(commentDisplay);
+        } else {
+          // Otherwise, show the Add Comment button
+          const commentButton = document.createElement("button");
+          commentButton.textContent = "Add Comment";
+          commentButton.onclick = function () {
+            let existingCommentDiv = listItem.querySelector(".comment-div");
+            if (existingCommentDiv) {
+              // Remove the comment input if it already exists
+              existingCommentDiv.remove();
+            } else {
+              // Create a new comment input area
+              const commentDiv = document.createElement("div");
+              commentDiv.className = "comment-div";
+              const commentInput = document.createElement("input");
+              commentInput.type = "text";
               commentInput.placeholder = "Enter comment";
               commentInput.classList.add("comment-textarea");
-              // Pre-fill with existing comment if available
-              commentInput.value = example.comment || "";
-            const saveCommentBtn = document.createElement("button");
-            saveCommentBtn.textContent = "Save Comment";
-            saveCommentBtn.onclick = function () {
-              example.comment = commentInput.value;
-              alert("Comment saved");
-            };
-            commentDiv.appendChild(commentInput);
-            commentDiv.appendChild(saveCommentBtn);
-            listItem.appendChild(commentDiv);
-          }
-        };
-        listItem.appendChild(commentButton);
-      }
+              // Pre-fill with existing comment if available (should be empty in this branch)
+                      commentInput.value = example.comment || "";
+                      const saveCommentBtn = document.createElement("button");
+                      saveCommentBtn.textContent = "Save Comment";
+                      saveCommentBtn.onclick = function () {
+                        example.comment = commentInput.value;
+                        alert("Comment saved");
+                        saveExample();
+                        // After saving, if a non-empty comment exists, replace the button with the comment display
+                        if (example.comment && example.comment.trim() !== "") {
+                          commentDiv.remove();
+                          commentButton.remove();
+                          const commentDisplay = document.createElement("span");
+                          commentDisplay.textContent = example.comment;
+                          commentDisplay.className = "comment-display";
+                          listItem.appendChild(commentDisplay);
+                        }
+                      };
+                      commentDiv.appendChild(commentInput);
+                      commentDiv.appendChild(saveCommentBtn);
+                      listItem.appendChild(commentDiv);
+                    }
+                  };
+                  listItem.appendChild(commentButton);
+                }
+              }
       
       groupMap[example.language].appendChild(listItem);
     });
@@ -498,42 +517,54 @@ function filterExamples() {
         listItem.appendChild(featureCheckbox);
         
         const featureLabel = document.createElement("label");
-        featureLabel.textContent = " Feature present";
+        featureLabel.textContent = " Feature present: ";
         listItem.appendChild(featureLabel);
         // If feature is present, add a button to add a comment
         if (example.featurepresent) {
-          const commentButton = document.createElement("button");
-          commentButton.textContent = "Add Comment";
-          commentButton.onclick = function () {
-            let existingCommentDiv = listItem.querySelector(".comment-div");
-            if (existingCommentDiv) {
-              // If comment div exists, remove it
-              existingCommentDiv.remove();
-            } else {
-              // Create a new comment div
-              const commentDiv = document.createElement("div");
-              commentDiv.className = "comment-div";
-              const commentInput = document.createElement("input");
-              commentInput.type = "text";
-              commentInput.placeholder = "Enter comment";
-              commentInput.classList.add("comment-textarea");
-              commentInput.classList.add("comment-textarea");
-              // Pre-fill with existing comment if available
-              commentInput.value = example.comment || "";
-              const saveCommentBtn = document.createElement("button");
-              saveCommentBtn.textContent = "Save Comment";
-              saveCommentBtn.onclick = function () {
-                example.comment = commentInput.value;
-                alert("Comment saved");
-                saveExample();
-              };
-              commentDiv.appendChild(commentInput);
-              commentDiv.appendChild(saveCommentBtn);
-              listItem.appendChild(commentDiv);
-            }
-          };
-          listItem.appendChild(commentButton);
-        }
+          if (example.comment && example.comment.trim() !== "") {
+            const commentDisplay = document.createElement("span");
+            commentDisplay.textContent = example.comment;
+            commentDisplay.className = "comment-display";
+            listItem.appendChild(commentDisplay);
+          } else {
+            const commentButton = document.createElement("button");
+            commentButton.textContent = "Add Comment";
+            commentButton.onclick = function () {
+              let existingCommentDiv = listItem.querySelector(".comment-div");
+              if (existingCommentDiv) {
+                existingCommentDiv.remove();
+              } else {
+                const commentDiv = document.createElement("div");
+                commentDiv.className = "comment-div";
+                const commentInput = document.createElement("input");
+                commentInput.type = "text";
+                commentInput.placeholder = "Enter comment";
+                commentInput.classList.add("comment-textarea");
+                // Pre-fill with existing comment if available
+                        commentInput.value = example.comment || "";
+                        const saveCommentBtn = document.createElement("button");
+                        saveCommentBtn.textContent = "Save Comment";
+                        saveCommentBtn.onclick = function () {
+                          example.comment = commentInput.value;
+                          alert("Comment saved");
+                          saveExample();
+                          if (example.comment && example.comment.trim() !== "") {
+                            commentDiv.remove();
+                            commentButton.remove();
+                            const commentDisplay = document.createElement("span");
+                            commentDisplay.textContent = example.comment;
+                            commentDisplay.className = "comment-display";
+                            listItem.appendChild(commentDisplay);
+                          }
+                        };
+                        commentDiv.appendChild(commentInput);
+                        commentDiv.appendChild(saveCommentBtn);
+                        listItem.appendChild(commentDiv);
+                      }
+                    };
+                    listItem.appendChild(commentButton);
+                  }
+                }
         groupMap[example.language].appendChild(listItem);
       }
     });
