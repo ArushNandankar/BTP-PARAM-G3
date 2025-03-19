@@ -120,6 +120,8 @@ function closeFolderContentsBox() {
 
 function saveFolderDetails() {
   if (!currentFolderLi) return;
+  // Save examples so that any changes (like the checkbox state) are persisted
+  saveExample();
   const folderDetails = {
     field1: document.getElementById("folder-field1").value,
   };
@@ -135,14 +137,17 @@ function addExample() {
   const selectedLanguage = languageSelect.value;
   const fileNameSpan = document.createElement("span");
   fileNameSpan.textContent = selectedLanguage;
+
   const fileField2 = document.createElement("textarea");
   fileField2.style.overflow = "auto";
   fileField2.style.resize = "vertical";
   fileField2.style.width = "100%";
   fileField2.style.height = "40px";
+  // In non-admin mode, the textarea is read-only:
   fileField2.readOnly = document.getElementById("adminSwitch").checked
     ? false
     : true;
+  
   const deleteBtn = document.createElement("button");
   deleteBtn.textContent = "Delete";
   deleteBtn.className = "delete-btn";
@@ -151,13 +156,35 @@ function addExample() {
       listItem.remove();
     }
   };
+
+  // Always add the checkbox if the example is of the selected language:
+  let featureCheckbox = null;
+  let featureLabel = null;
+  if (selectedLanguage === languageSelect.value) {
+    featureCheckbox = document.createElement("input");
+    featureCheckbox.type = "checkbox";
+    featureCheckbox.className = "feature-checkbox";
+    // New examples start unchecked:
+    featureCheckbox.checked = false;
+    
+    featureLabel = document.createElement("label");
+    featureLabel.textContent = " Feature present";
+  }
+
   listItem.appendChild(fileNameSpan);
   listItem.appendChild(document.createElement("br"));
   listItem.appendChild(fileField2);
+  // Append the checkbox if it was created
+  if (featureCheckbox) {
+    listItem.appendChild(featureLabel);
+    listItem.appendChild(featureCheckbox);
+  }
   listItem.appendChild(deleteBtn);
   filesList.appendChild(listItem);
+
+  // Update the folder's examples data (include feature flag)
   const examples = JSON.parse(currentFolderLi.dataset.examples || "[]");
-  examples.push({ language: selectedLanguage, description: "" });
+  examples.push({ language: selectedLanguage, description: "", featurepresent: false });
   currentFolderLi.dataset.examples = JSON.stringify(examples);
   toggleAdminMode();
 }
@@ -165,19 +192,28 @@ function addExample() {
 function saveExample() {
   if (!currentFolderLi) return;
   const filesContainer = document.getElementById("folder-files");
+  // The examples are grouped in <ul> elements
   const groups = filesContainer.querySelectorAll("ul");
   let examples = [];
   groups.forEach((group) => {
     const header = group.firstElementChild;
     if (!header) return;
     const language = header.textContent.trim();
+    // Skip the header and loop through each example item
     const exampleItems = group.querySelectorAll("li:not(:first-child)");
     exampleItems.forEach((item) => {
       const textarea = item.querySelector("textarea");
       if (textarea) {
+        // Get the checkbox if it exists
+        const checkbox = item.querySelector(".feature-checkbox");
+        const feature = checkbox ? checkbox.checked : false;
+        const commentTextarea = item.querySelector(".comment-textarea");
+        const comment = commentTextarea ? commentTextarea.value : "";
         examples.push({
           language: language,
           description: textarea.value,
+          featurepresent: feature,
+          comment: comment
         });
       }
     });
@@ -186,7 +222,6 @@ function saveExample() {
   console.log("Saved Examples:", examples);
   alert("Examples saved successfully!");
 }
-
 function treeToJson(element) {
   const items = [];
   const lis = element.children;
@@ -332,6 +367,7 @@ function filterExamples() {
   const filesContainer = document.getElementById("folder-files");
   filesContainer.innerHTML = "";
   let columns = [];
+  
   if (isAdmin) {
     const groupMap = {};
     const examples = JSON.parse(currentFolderLi.dataset.examples || "[]");
@@ -362,8 +398,57 @@ function filterExamples() {
           listItem.remove();
         }
       };
+
       listItem.appendChild(fileField2);
       listItem.appendChild(deleteBtn);
+      
+      const featureCheckbox = document.createElement("input");
+      featureCheckbox.type = "checkbox";
+      featureCheckbox.className = "feature-checkbox";
+      featureCheckbox.checked = example.featurepresent || false;
+      // Disable checkbox if the example's language is not the selected language
+      if (example.language !== userLang) {
+        featureCheckbox.disabled = true;
+      }
+      listItem.appendChild(featureCheckbox);
+      
+      const featureLabel = document.createElement("label");
+      featureLabel.textContent = " Feature present";
+      listItem.appendChild(featureLabel);
+      
+      // If feature is present, add a button to add a comment
+      if (example.featurepresent) {
+        const commentButton = document.createElement("button");
+        commentButton.textContent = "Add Comment";
+        commentButton.onclick = function () {
+          let existingCommentDiv = listItem.querySelector(".comment-div");
+          if (existingCommentDiv) {
+            // If comment div exists, remove it
+            existingCommentDiv.remove();
+          } else {
+            // Create a new comment div
+            const commentDiv = document.createElement("div");
+            commentDiv.className = "comment-div";
+            const commentInput = document.createElement("input");
+            commentInput.type = "text";
+              commentInput.placeholder = "Enter comment";
+              commentInput.classList.add("comment-textarea");
+              // Pre-fill with existing comment if available
+              commentInput.value = example.comment || "";
+            const saveCommentBtn = document.createElement("button");
+            saveCommentBtn.textContent = "Save Comment";
+            saveCommentBtn.onclick = function () {
+              example.comment = commentInput.value;
+              alert("Comment saved");
+            };
+            commentDiv.appendChild(commentInput);
+            commentDiv.appendChild(saveCommentBtn);
+            listItem.appendChild(commentDiv);
+          }
+        };
+        listItem.appendChild(commentButton);
+      }
+      
       groupMap[example.language].appendChild(listItem);
     });
     for (const lang in groupMap) {
@@ -372,12 +457,8 @@ function filterExamples() {
       }
     }
   } else {
-    const referenceLang = document.getElementById(
-      "referenceLanguageSelect"
-    ).value;
-    const referenceLang2 = document.getElementById(
-      "referenceLanguageSelect2"
-    ).value;
+    const referenceLang = document.getElementById("referenceLanguageSelect").value;
+    const referenceLang2 = document.getElementById("referenceLanguageSelect2").value;
     const languagesToShow = new Set([userLang, referenceLang]);
     if (referenceLang2 != "None") {
       languagesToShow.add(referenceLang2);
@@ -402,8 +483,57 @@ function filterExamples() {
         fileField2.style.width = "100%";
         fileField2.style.height = "40px";
         fileField2.value = example.description;
+        // Only allow editing when the example is of the user-selected language:
         fileField2.readOnly = example.language !== userLang;
         listItem.appendChild(fileField2);
+        
+        const featureCheckbox = document.createElement("input");
+        featureCheckbox.type = "checkbox";
+        featureCheckbox.className = "feature-checkbox";
+        featureCheckbox.checked = example.featurepresent || false;
+        // Disable checkbox if the example's language is not the selected language
+        if (example.language !== userLang) {
+          featureCheckbox.disabled = true;
+        }
+        listItem.appendChild(featureCheckbox);
+        
+        const featureLabel = document.createElement("label");
+        featureLabel.textContent = " Feature present";
+        listItem.appendChild(featureLabel);
+        // If feature is present, add a button to add a comment
+        if (example.featurepresent) {
+          const commentButton = document.createElement("button");
+          commentButton.textContent = "Add Comment";
+          commentButton.onclick = function () {
+            let existingCommentDiv = listItem.querySelector(".comment-div");
+            if (existingCommentDiv) {
+              // If comment div exists, remove it
+              existingCommentDiv.remove();
+            } else {
+              // Create a new comment div
+              const commentDiv = document.createElement("div");
+              commentDiv.className = "comment-div";
+              const commentInput = document.createElement("input");
+              commentInput.type = "text";
+              commentInput.placeholder = "Enter comment";
+              commentInput.classList.add("comment-textarea");
+              commentInput.classList.add("comment-textarea");
+              // Pre-fill with existing comment if available
+              commentInput.value = example.comment || "";
+              const saveCommentBtn = document.createElement("button");
+              saveCommentBtn.textContent = "Save Comment";
+              saveCommentBtn.onclick = function () {
+                example.comment = commentInput.value;
+                alert("Comment saved");
+                saveExample();
+              };
+              commentDiv.appendChild(commentInput);
+              commentDiv.appendChild(saveCommentBtn);
+              listItem.appendChild(commentDiv);
+            }
+          };
+          listItem.appendChild(commentButton);
+        }
         groupMap[example.language].appendChild(listItem);
       }
     });
@@ -415,6 +545,7 @@ function filterExamples() {
       columns.push(groupMap[referenceLang2]);
     }
   }
+  // Append columns to the files container (using a flex layout for multiple columns)
   if (columns.length > 0) {
     if (columns.length === 1) {
       filesContainer.appendChild(columns[0]);
@@ -429,9 +560,7 @@ function filterExamples() {
         });
       } else {
         columns.forEach((col) => {
-          col.style.flex = `0 1 calc((100% - ${
-            (columns.length - 1) * 20
-          }px) / ${columns.length})`;
+          col.style.flex = `0 1 calc((100% - ${(columns.length - 1) * 20}px) / ${columns.length})`;
         });
       }
       columns.forEach((col) => flexContainer.appendChild(col));
