@@ -91,10 +91,10 @@ function showFolderContents(directoryLi) {
     const fileNameSpan = document.createElement("span");
     fileNameSpan.textContent = example.language;
     const fileField2 = document.createElement("textarea");
-    fileField2.style.overflow = "hidden";
+    fileField2.style.overflow = "auto";
     fileField2.style.resize = "vertical";
     fileField2.style.width = "100%";
-    fileField2.style.height = "70px";
+    fileField2.style.height = "40px";
     fileField2.value = example.description;
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
@@ -136,10 +136,10 @@ function addExample() {
   const fileNameSpan = document.createElement("span");
   fileNameSpan.textContent = selectedLanguage;
   const fileField2 = document.createElement("textarea");
-  fileField2.style.overflow = "hidden";
+  fileField2.style.overflow = "auto";
   fileField2.style.resize = "vertical";
   fileField2.style.width = "100%";
-  fileField2.style.height = "70px";
+  fileField2.style.height = "40px";
   fileField2.readOnly = document.getElementById("adminSwitch").checked
     ? false
     : true;
@@ -271,7 +271,7 @@ function loadTree(event) {
                            <span class=\"name\">${item.name}</span>
                            <div class=\"actions\">
                              <button class=\"add-btn\" onclick=\"showAddForm(this)\">+</button>
-                             <button class=\"delete-btn\" onclick=\"deleteItem(this)\">×</button>
+                             <button class=\"delete-btn\" onclick=\"deleteItem(this)\">x</button>
                            </div>
                            <div class=\"input-form\">
                              <input type=\"text\" placeholder=\"Name\">
@@ -347,10 +347,10 @@ function filterExamples() {
       }
       const listItem = document.createElement("li");
       const fileField2 = document.createElement("textarea");
-      fileField2.style.overflow = "hidden";
+      fileField2.style.overflow = "auto";
       fileField2.style.resize = "vertical";
       fileField2.style.width = "100%";
-      fileField2.style.height = "70px";
+      fileField2.style.height = "40px";
       fileField2.value = example.description;
       fileField2.readOnly = false;
       const deleteBtn = document.createElement("button");
@@ -375,7 +375,13 @@ function filterExamples() {
     const referenceLang = document.getElementById(
       "referenceLanguageSelect"
     ).value;
+    const referenceLang2 = document.getElementById(
+      "referenceLanguageSelect2"
+    ).value;
     const languagesToShow = new Set([userLang, referenceLang]);
+    if (referenceLang2 != "None") {
+      languagesToShow.add(referenceLang2);
+    }
     const groupMap = {};
     const examples = JSON.parse(currentFolderLi.dataset.examples || "[]");
     examples.forEach((example) => {
@@ -391,10 +397,10 @@ function filterExamples() {
         }
         const listItem = document.createElement("li");
         const fileField2 = document.createElement("textarea");
-        fileField2.style.overflow = "hidden";
+        fileField2.style.overflow = "auto";
         fileField2.style.resize = "vertical";
         fileField2.style.width = "100%";
-        fileField2.style.height = "70px";
+        fileField2.style.height = "40px";
         fileField2.value = example.description;
         fileField2.readOnly = example.language !== userLang;
         listItem.appendChild(fileField2);
@@ -404,6 +410,9 @@ function filterExamples() {
     if (groupMap[userLang]) columns.push(groupMap[userLang]);
     if (userLang !== referenceLang && groupMap[referenceLang]) {
       columns.push(groupMap[referenceLang]);
+    }
+    if (userLang !== referenceLang2 && groupMap[referenceLang2] && referenceLang2 != "None") {
+      columns.push(groupMap[referenceLang2]);
     }
   }
   if (columns.length > 0) {
@@ -436,6 +445,9 @@ document
   .addEventListener("change", filterExamples);
 document
   .getElementById("referenceLanguageSelect")
+  .addEventListener("change", filterExamples);
+document
+  .getElementById("referenceLanguageSelect2")
   .addEventListener("change", filterExamples);
 toggleAdminMode();
 
