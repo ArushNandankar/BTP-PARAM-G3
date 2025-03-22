@@ -74,10 +74,12 @@ document.addEventListener("click", function (e) {
 let currentFolderLi = null;
 
 function showFolderContents(directoryLi) {
-  // Remove the active class from any folder 
-  document.querySelectorAll(".tree-item .name.active-folder").forEach((span) => {
-    span.classList.remove("active-folder");
-  });
+  // Remove the active class from any folder
+  document
+    .querySelectorAll(".tree-item .name.active-folder")
+    .forEach((span) => {
+      span.classList.remove("active-folder");
+    });
 
   currentFolderLi = directoryLi;
   const nameSpan = directoryLi.querySelector(".name");
@@ -625,7 +627,7 @@ function filterExamples() {
       const flexContainer = document.createElement("div");
       flexContainer.style.display = "flex";
       flexContainer.style.gap = "20px";
-      
+
       if (columns.length > 3) {
         // Make each column a fixed 33% and set container width accordingly
         columns.forEach((col) => {
@@ -642,13 +644,13 @@ function filterExamples() {
         });
       }
       columns.forEach((col) => flexContainer.appendChild(col));
-      
+
       // Wrap the flex container with a scrollable outer div for horizontal scrolling
       const scrollContainer = document.createElement("div");
       scrollContainer.style.overflowX = "auto";
       scrollContainer.style.width = "100%";
       scrollContainer.appendChild(flexContainer);
-      
+
       filesContainer.appendChild(scrollContainer);
     }
   }
@@ -687,17 +689,22 @@ function toggleTreeVisibility() {
 // Call this function whenever a folder is opened to update the next/previous buttons
 function updateNavigationButtons() {
   // Get all folders (the <li> elements in the tree)
-  const folderList = Array.from(document.querySelectorAll('#root li'));
+  const folderList = Array.from(document.querySelectorAll("#root li"));
   const currentIndex = folderList.indexOf(currentFolderLi);
   const prevBtn = document.getElementById("prevFolderButton");
   const nextBtn = document.getElementById("nextFolderButton");
 
-  if (prevBtn) { prevBtn.disabled = (currentIndex <= 0); }
-  if (nextBtn) { nextBtn.disabled = (currentIndex === -1 || currentIndex >= folderList.length - 1); }
+  if (prevBtn) {
+    prevBtn.disabled = currentIndex <= 0;
+  }
+  if (nextBtn) {
+    nextBtn.disabled =
+      currentIndex === -1 || currentIndex >= folderList.length - 1;
+  }
 }
 
 function navigateFolder(offset) {
-  const folderList = Array.from(document.querySelectorAll('#root li'));
+  const folderList = Array.from(document.querySelectorAll("#root li"));
   const currentIndex = folderList.indexOf(currentFolderLi);
   const newIndex = currentIndex + offset;
   if (newIndex >= 0 && newIndex < folderList.length) {
