@@ -3,6 +3,7 @@
 }
 .tree {
   padding: 20px;
+  font-size: 14px;
 }
 .tree ul {
   position: relative;
@@ -97,13 +98,18 @@
 }
 #folder-contents-box {
   display: none;
-  position: absolute;
-  right: 10%;
-  top: 20%;
-  width: 50%;
+  position: fixed;
+  right: 5%;
+  top: 15%;
+  bottom: 10%;
+  overflow: auto;
+  width: 55%;
   border: 1px solid #ccc;
   background: #fff;
   padding: 10px;
+}
+.active-folder {
+  font-weight: bold;
 }
 .file-list {
   list-style: none;

@@ -73,20 +73,48 @@
     <div class="tree">
       <ul id="root">
         <li>
-          <div class="tree-item root-item">
-            <span class="expand-btn">[-]</span>
-            <span class="name">root</span>
-            <div class="actions">
-              <button class="add-btn" onclick="showAddForm(this)">+</button>
+            <div class="tree-item root-item">
+                <span class="expand-btn">[-]</span>
+                <span class="name">Morphological</span>
+                <div class="actions">
+                    <button class="add-btn" onclick="showAddForm(this)">+</button>
+                </div>
+                <div class="input-form">
+                    <input type="text" placeholder="Name" />
+                    <button onclick="addItem(this)">Add</button>
+                </div>
             </div>
-            <div class="input-form">
-              <input type="text" placeholder="Name" />
-              <button onclick="addItem(this)">Add</button>
-            </div>
-          </div>
-          <ul></ul>
+            <ul></ul>
         </li>
-      </ul>
+        <li>
+            <div class="tree-item root-item">
+                <span class="expand-btn">[-]</span>
+                <span class="name">Syntactic</span>
+                <div class="actions">
+                    <button class="add-btn" onclick="showAddForm(this)">+</button>
+                </div>
+                <div class="input-form">
+                    <input type="text" placeholder="Name" />
+                    <button onclick="addItem(this)">Add</button>
+                </div>
+            </div>
+            <ul></ul>
+        </li>
+        <li>
+            <div class="tree-item root-item">
+                <span class="expand-btn">[-]</span>
+                <span class="name">Lexical-Semantic</span>
+                <div class="actions">
+                    <button class="add-btn" onclick="showAddForm(this)">+</button>
+                </div>
+                <div class="input-form">
+                    <input type="text" placeholder="Name" />
+                    <button onclick="addItem(this)">Add</button>
+                </div>
+            </div>
+            <ul></ul>
+        </li>
+    </ul>
     </div>
     <div id="folder-contents-box">
       <h3>

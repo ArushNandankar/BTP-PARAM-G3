@@ -74,9 +74,18 @@ document.addEventListener("click", function (e) {
 let currentFolderLi = null;
 
 function showFolderContents(directoryLi) {
+  // Remove the active class from any folder 
+  document.querySelectorAll(".tree-item .name.active-folder").forEach((span) => {
+    span.classList.remove("active-folder");
+  });
+
   currentFolderLi = directoryLi;
+  const nameSpan = directoryLi.querySelector(".name");
+  if (nameSpan) {
+    nameSpan.classList.add("active-folder");
+  }
   document.getElementById("folder-name-display").textContent =
-    directoryLi.querySelector(".name").textContent;
+    nameSpan.textContent;
   const folderDetails = directoryLi.dataset.details
     ? JSON.parse(directoryLi.dataset.details)
     : { field1: "", field2: "", field3: "" };
@@ -94,7 +103,8 @@ function showFolderContents(directoryLi) {
     fileField2.style.overflow = "auto";
     fileField2.style.resize = "vertical";
     fileField2.style.width = "100%";
-    fileField2.style.height = "40px";
+    fileField2.style.height = "50px";
+    fileField2.style.fontSize = "18px";
     fileField2.value = example.description;
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
@@ -115,6 +125,13 @@ function showFolderContents(directoryLi) {
 }
 
 function closeFolderContentsBox() {
+  // Remove active class from current folder name if needed
+  if (currentFolderLi) {
+    const nameSpan = currentFolderLi.querySelector(".name");
+    if (nameSpan) {
+      nameSpan.classList.remove("active-folder");
+    }
+  }
   document.getElementById("folder-contents-box").style.display = "none";
 }
 
@@ -142,7 +159,8 @@ function addExample() {
   fileField2.style.overflow = "auto";
   fileField2.style.resize = "vertical";
   fileField2.style.width = "100%";
-  fileField2.style.height = "40px";
+  fileField2.style.height = "50px";
+  fileField2.style.fontSize = "18px";
   // In non-admin mode, the textarea is read-only:
   fileField2.readOnly = document.getElementById("adminSwitch").checked
     ? false
@@ -398,7 +416,8 @@ function filterExamples() {
       fileField2.style.overflow = "auto";
       fileField2.style.resize = "vertical";
       fileField2.style.width = "100%";
-      fileField2.style.height = "40px";
+      fileField2.style.height = "50px";
+      fileField2.style.fontSize = "18px";
       fileField2.value = example.description;
       fileField2.readOnly = false;
       const deleteBtn = document.createElement("button");
@@ -516,7 +535,8 @@ function filterExamples() {
         fileField2.style.overflow = "auto";
         fileField2.style.resize = "vertical";
         fileField2.style.width = "100%";
-        fileField2.style.height = "40px";
+        fileField2.style.height = "50px";
+        fileField2.style.fontSize = "18px";
         fileField2.value = example.description;
         // Only allow editing when the example is of the user-selected language:
         fileField2.readOnly = example.language !== userLang;
@@ -604,20 +624,31 @@ function filterExamples() {
       const flexContainer = document.createElement("div");
       flexContainer.style.display = "flex";
       flexContainer.style.gap = "20px";
-      flexContainer.style.width = "100%";
-      if (columns.length === 2) {
+      
+      if (columns.length > 3) {
+        // Make each column a fixed 33% and set container width accordingly
         columns.forEach((col) => {
-          col.style.flex = "0 1 50%";
+          col.style.flex = "0 1 calc((100% - 4%) / 3)";
         });
-      } else {
+        flexContainer.style.width = `${columns.length * 33}%`;
+      } else if (columns.length === 2) {
         columns.forEach((col) => {
-          col.style.flex = `0 1 calc((100% - ${
-            (columns.length - 1) * 20
-          }px) / ${columns.length})`;
+          col.style.flex = "0 1 calc((100% - 2%) / 2)";
+        });
+      } else if (columns.length === 3) {
+        columns.forEach((col) => {
+          col.style.flex = "0 1 calc((100% - 4%) / 3)";
         });
       }
       columns.forEach((col) => flexContainer.appendChild(col));
-      filesContainer.appendChild(flexContainer);
+      
+      // Wrap the flex container with a scrollable outer div for horizontal scrolling
+      const scrollContainer = document.createElement("div");
+      scrollContainer.style.overflowX = "auto";
+      scrollContainer.style.width = "100%";
+      scrollContainer.appendChild(flexContainer);
+      
+      filesContainer.appendChild(scrollContainer);
     }
   }
 }
@@ -640,14 +671,14 @@ function toggleTreeVisibility() {
   if (treeContainer.style.display === "none") {
     treeContainer.style.display = "block";
     btn.textContent = "Hide Tree";
-    folderBox.style.width = "50%";
+    folderBox.style.width = "55%";
     folderBox.style.right = "10%";
     folderBox.style.left = "";
   } else {
     treeContainer.style.display = "none";
     btn.textContent = "Show Tree";
-    folderBox.style.width = "80%";
-    folderBox.style.left = "10%";
-    folderBox.style.right = "";
+    folderBox.style.width = "90%";
+    folderBox.style.left = "5%";
+    folderBox.style.right = "5%";
   }
 }

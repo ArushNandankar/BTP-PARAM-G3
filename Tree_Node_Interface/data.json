@@ -1,6 +1,6 @@
 [
   {
-    "name": "root",
+    "name": "Morphological",
     "type": "root",
     "collapsed": false,
     "children": [
@@ -36,39 +36,57 @@
             "examples": [
               {
                 "language": "English",
-                "description": "He always walked to school."
+                "description": "He always walked to school.",
+                "featurepresent": true,
+                "comment": "always"
               },
               {
                 "language": "English",
-                "description": "I used to eat daily."
+                "description": "I used to eat daily.",
+                "featurepresent": true,
+                "comment": "daily"
               },
               {
                 "language": "English",
-                "description": " He used to read a book everyday."
+                "description": "He used to read a book everyday.",
+                "featurepresent": true,
+                "comment": "everyday"
               },
               {
                 "language": "Telugu",
-                "description": "అతను ఎల్లప్పుడూ పాఠశాలకు నడిచేవాడు."
+                "description": "అతను ఎల్లప్పుడూ పాఠశాలకు నడిచేవాడు.",
+                "featurepresent": false,
+                "comment": ""
               },
               {
                 "language": "Telugu",
-                "description": "నేను ప్రతిరోజూ భోజనం చేసేవాడిని. "
+                "description": "నేను ప్రతిరోజూ భోజనం చేసేవాడిని. ",
+                "featurepresent": false,
+                "comment": ""
               },
               {
                 "language": "Telugu",
-                "description": "అతను ప్రతిరోజూ పుస్తకాలు చదివేవాడు."
+                "description": "అతను ప్రతిరోజూ పుస్తకాలు చదివేవాడు.",
+                "featurepresent": false,
+                "comment": ""
               },
               {
                 "language": "Gujarati",
-                "description": "તે હંમેશાં ધ્યાન કરીને જ દિવસની શરૂઆત કરતો હતો."
+                "description": "તે હંમેશાં ધ્યાન કરીને જ દિવસની શરૂઆત કરતો હતો.",
+                "featurepresent": false,
+                "comment": ""
               },
               {
                 "language": "Gujarati",
-                "description": "હું શાળાએ સમયસર જતો હતો."
+                "description": "હું શાળાએ સમયસર જતો હતો.",
+                "featurepresent": false,
+                "comment": ""
               },
               {
                 "language": "Gujarati",
-                "description": "તે નાનો હતો ત્યારે દરરોજ વાર્તાના પુસ્તકો વાંચતો હતો."
+                "description": "તે નાનો હતો ત્યારે દરરોજ વાર્તાના પુસ્તકો વાંચતો હતો.",
+                "featurepresent": false,
+                "comment": ""
               }
             ]
           },
@@ -167,5 +185,17 @@
         "collapsed": false
       }
     ]
+  },
+  {
+    "name": "Syntactic",
+    "type": "root",
+    "collapsed": false,
+    "children": []
+  },
+  {
+    "name": "Lexical-Semantic",
+    "type": "root",
+    "collapsed": false,
+    "children": []
   }
 ]
