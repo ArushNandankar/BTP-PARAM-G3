@@ -122,6 +122,7 @@ function showFolderContents(directoryLi) {
   });
   document.getElementById("folder-contents-box").style.display = "block";
   toggleAdminMode();
+  updateNavigationButtons();
 }
 
 function closeFolderContentsBox() {
@@ -680,5 +681,26 @@ function toggleTreeVisibility() {
     folderBox.style.width = "90%";
     folderBox.style.left = "5%";
     folderBox.style.right = "5%";
+  }
+}
+
+// Call this function whenever a folder is opened to update the next/previous buttons
+function updateNavigationButtons() {
+  // Get all folders (the <li> elements in the tree)
+  const folderList = Array.from(document.querySelectorAll('#root li'));
+  const currentIndex = folderList.indexOf(currentFolderLi);
+  const prevBtn = document.getElementById("prevFolderButton");
+  const nextBtn = document.getElementById("nextFolderButton");
+
+  if (prevBtn) { prevBtn.disabled = (currentIndex <= 0); }
+  if (nextBtn) { nextBtn.disabled = (currentIndex === -1 || currentIndex >= folderList.length - 1); }
+}
+
+function navigateFolder(offset) {
+  const folderList = Array.from(document.querySelectorAll('#root li'));
+  const currentIndex = folderList.indexOf(currentFolderLi);
+  const newIndex = currentIndex + offset;
+  if (newIndex >= 0 && newIndex < folderList.length) {
+    showFolderContents(folderList[newIndex]);
   }
 }
