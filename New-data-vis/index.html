@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Full Screen Collapsible Tree</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      overflow: hidden; 
+    }
+    .link {
+      fill: none;
+      stroke: #999;
+      stroke-opacity: 0.6;
+      stroke-width: 1.5px;
+    }
+    .node circle {
+      fill: #fff;
+      stroke: steelblue;
+      stroke-width: 2px;
+      cursor: pointer;
+    }
+    .node text {
+      font-size: 20px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<svg id="tree"></svg>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+const width = window.innerWidth;
+const height = window.innerHeight;
+const margin = { top: 20, right: 90, bottom: 30, left: 90 };
+
+const svg = d3.select("#tree")
+  .attr("width", width)
+  .attr("height", height);
+
+const g = svg.append("g")
+  .attr("transform", `translate(${margin.left},${margin.top})`);
+
+  const data = {
+  name: "Root",
+  children: [
+    {
+      name: "Child A",
+      children: [
+        { 
+          name: "Grandchild A1",
+          children: [
+            { name: "Child1 of A1" },
+            { name: "Child2 of A1" },
+            { name: "Child3 of A1" }
+          ] 
+        },
+        { name: "Grandchild A2",
+          children: [
+            { name: "Child1 of A2" },
+            { name: "Child2 of A2" }           
+          ] 
+        }
+      ]
+    },
+    {
+      name: "Child B",
+      children: [
+        { name: "Grandchild B1" },
+        { name: "Grandchild B2" }
+      ]
+    }
+  ]
+};
+
+const treemap = d3.tree()
+  .size([height - margin.top - margin.bottom, width - margin.left - margin.right]);
+
+let root = d3.hierarchy(data);
+root.x0 = (height - margin.top - margin.bottom) / 2;
+root.y0 = 0;
+
+let i = 0;
+
+update(root);
+
+function update(source) {
+  const treeData = treemap(root);
+  const nodes = treeData.descendants();
+  const links = treeData.links();
+
+  nodes.forEach(d => d.y = d.depth * 150);
+
+  const node = g.selectAll("g.node")
+    .data(nodes, d => d.id || (d.id = ++i));
+
+  const nodeEnter = node.enter().append("g")
+    .attr("class", "node")
+    .attr("transform", () => `translate(${source.y0},${source.x0})`)
+    .on("click", (event, d) => {
+      toggle(d);
+      update(d);
+    });
+
+  nodeEnter.append("circle")
+    .attr("r", 1e-6)
+    .style("fill", d => d._children ? "lightsteelblue" : "#fff");
+
+  nodeEnter.append("text")
+    .attr("dy", ".35em")
+    .attr("x", 10)
+    .attr("text-anchor", "start")
+    .text(d => d.data.name);
+
+  const nodeUpdate = nodeEnter.merge(node);
+
+  nodeUpdate.transition().duration(300)
+    .attr("transform", d => `translate(${d.y},${d.x})`);
+
+  nodeUpdate.select("circle")
+    .attr("r", 8)
+    .style("fill", d => d._children ? "lightsteelblue" : "#fff");
+
+  const nodeExit = node.exit().transition().duration(300)
+    .attr("transform", () => `translate(${source.y},${source.x})`)
+    .remove();
+
+  nodeExit.select("circle").attr("r", 1e-6);
+  nodeExit.select("text").style("fill-opacity", 1e-6);
+
+  const link = g.selectAll("path.link")
+    .data(links, d => d.target.id);
+
+  const linkEnter = link.enter().insert("path", "g")
+    .attr("class", "link")
+    .attr("d", () => {
+      const o = { x: source.x0, y: source.y0 };
+      return diagonal(o, o);
+    });
+
+  const linkUpdate = linkEnter.merge(link);
+  linkUpdate.transition().duration(300)
+    .attr("d", d => diagonal(d.source, d.target));
+
+  const linkExit = link.exit().transition().duration(300)
+    .attr("d", () => {
+      const o = { x: source.x, y: source.y };
+      return diagonal(o, o);
+    })
+    .remove();
+
+  nodes.forEach(d => {
+    d.x0 = d.x;
+    d.y0 = d.y;
+  });
+}
+
+function diagonal(s, t) {
+  return `M ${s.y},${s.x}
+          C ${(s.y + t.y) / 2},${s.x},
+            ${(s.y + t.y) / 2},${t.x},
+            ${t.y},${t.x}`;
+}
+
+function toggle(d) {
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+  } else {
+    d.children = d._children;
+    d._children = null;
+  }
+}
+</script>
+
+</body>
+</html>
